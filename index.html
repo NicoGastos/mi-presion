@@ -207,6 +207,10 @@ button:disabled { opacity: .55; }
   .presion { font-size: 38px; }
 }
 </style>
+
+<!-- LIBRERÍA PARA GENERAR EXCEL REAL XLSX -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 </head>
 
 <body>
@@ -220,8 +224,6 @@ Registro personal de presión arterial
 </div>
 
 
-<!-- ULTIMA MEDICION -->
-
 <div class="tarjeta ultima">
 
 <h2>Última medición</h2>
@@ -232,8 +234,6 @@ Cargando...
 
 </div>
 
-
-<!-- NUEVA MEDICION -->
 
 <div class="tarjeta">
 
@@ -262,10 +262,8 @@ Cargando...
 <label>Fecha</label>
 <input type="date" id="fecha">
 
-
 <label>Hora</label>
 <input type="time" id="hora">
-
 
 <label>Presión sistólica (máxima)</label>
 
@@ -275,7 +273,6 @@ Cargando...
   inputmode="numeric"
   placeholder="Ej: 120">
 
-
 <label>Presión diastólica (mínima)</label>
 
 <input
@@ -283,7 +280,6 @@ Cargando...
   id="diastolica"
   inputmode="numeric"
   placeholder="Ej: 80">
-
 
 <label>Pulso</label>
 
@@ -293,13 +289,11 @@ Cargando...
   inputmode="numeric"
   placeholder="Ej: 70">
 
-
 <label>Observación</label>
 
 <textarea
   id="observacion"
   placeholder="Ej: 5 minutos de reposo, recién levantado..."></textarea>
-
 
 <button id="btnGuardar">
 💾 Guardar medición
@@ -307,8 +301,6 @@ Cargando...
 
 </div>
 
-
-<!-- REGISTROS -->
 
 <div class="tarjeta">
 
@@ -342,11 +334,7 @@ Cargando...
 </div>
 
 
-<!-- HISTORIAL -->
-
-<div
-  class="tarjeta"
-  id="panelHistorial">
+<div class="tarjeta" id="panelHistorial">
 
 <h2>📋 Historial completo</h2>
 
@@ -355,11 +343,7 @@ Cargando...
 </div>
 
 
-<!-- INFORMES -->
-
-<div
-  class="tarjeta"
-  id="panelInformes">
+<div class="tarjeta" id="panelInformes">
 
 <h2>📊 Informe de presión arterial</h2>
 
@@ -456,7 +440,7 @@ let mediciones = [];
 
 
 /* =====================================================
-   MEDICIONES HISTORICAS
+   HISTÓRICO
 ===================================================== */
 
 const historicas = [
@@ -511,36 +495,26 @@ const historicas = [
 
 
 /* =====================================================
-   FECHA / HORA ACTUAL
+   FECHA Y HORA
 ===================================================== */
 
 function fechaHoraActual(){
 
-const ahora =
-new Date();
+const ahora = new Date();
 
-const yyyy =
-ahora.getFullYear();
+const yyyy = ahora.getFullYear();
 
 const mm =
-String(
-ahora.getMonth()+1
-).padStart(2,"0");
+String(ahora.getMonth()+1).padStart(2,"0");
 
 const dd =
-String(
-ahora.getDate()
-).padStart(2,"0");
+String(ahora.getDate()).padStart(2,"0");
 
 const hh =
-String(
-ahora.getHours()
-).padStart(2,"0");
+String(ahora.getHours()).padStart(2,"0");
 
 const min =
-String(
-ahora.getMinutes()
-).padStart(2,"0");
+String(ahora.getMinutes()).padStart(2,"0");
 
 fecha.value =
 `${yyyy}-${mm}-${dd}`;
@@ -557,11 +531,8 @@ fechaHoraActual();
    FOTO
 ===================================================== */
 
-document.getElementById(
-"btnFoto"
-).addEventListener(
-"click",
-function(){
+document.getElementById("btnFoto")
+.addEventListener("click",function(){
 
 fotoInput.value="";
 
@@ -581,9 +552,7 @@ fotoInput.click();
 });
 
 
-fotoInput.addEventListener(
-"change",
-function(){
+fotoInput.addEventListener("change",function(){
 
 const archivo =
 fotoInput.files[0];
@@ -594,35 +563,29 @@ return;
 const url =
 URL.createObjectURL(archivo);
 
-preview.src =
-url;
+preview.src=url;
 
-preview.style.display =
-"block";
+preview.style.display="block";
 
-avisoFoto.style.display =
-"block";
+avisoFoto.style.display="block";
 
 });
 
 
 /* =====================================================
-   IMPORTAR HISTORICAS SIN DUPLICAR
+   IMPORTAR HISTÓRICAS
 ===================================================== */
 
 async function importarHistoricas(){
 
 const snapshot =
-await getDocs(
-medicionesRef
-);
+await getDocs(medicionesRef);
 
 const existentes =
 new Set();
 
 
-snapshot.forEach(
-doc=>{
+snapshot.forEach(doc=>{
 
 const m =
 doc.data();
@@ -630,24 +593,17 @@ doc.data();
 const clave =
 `${m.fecha}|${m.hora}|${m.sistolica}|${m.diastolica}`;
 
-existentes.add(
-clave
-);
+existentes.add(clave);
 
 });
 
 
-for(
-const h of historicas
-){
+for(const h of historicas){
 
 const clave =
 `${h[0]}|${h[1]}|${h[2]}|${h[3]}`;
 
-
-if(
-existentes.has(clave)
-)
+if(existentes.has(clave))
 continue;
 
 
@@ -678,10 +634,7 @@ serverTimestamp()
 }
 );
 
-
-existentes.add(
-clave
-);
+existentes.add(clave);
 
 }
 
@@ -689,34 +642,28 @@ clave
 
 
 /* =====================================================
-   CARGAR MEDICIONES
+   CARGAR
 ===================================================== */
 
 async function cargarMediciones(){
 
 const snapshot =
-await getDocs(
-medicionesRef
-);
+await getDocs(medicionesRef);
 
 mediciones=[];
 
 
-snapshot.forEach(
-doc=>{
+snapshot.forEach(doc=>{
 
-mediciones.push(
-{
+mediciones.push({
 id:doc.id,
 ...doc.data()
-}
-);
+});
 
 });
 
 
-mediciones.sort(
-(a,b)=>{
+mediciones.sort((a,b)=>{
 
 const A =
 `${a.fecha||""} ${a.hora||""}`;
@@ -726,8 +673,7 @@ const B =
 
 return B.localeCompare(A);
 
-}
-);
+});
 
 
 mostrarUltima();
@@ -740,20 +686,15 @@ generarInforme();
 
 
 /* =====================================================
-   ULTIMA MEDICION
+   ÚLTIMA
 ===================================================== */
 
 function mostrarUltima(){
 
 const cont =
-document.getElementById(
-"ultimaMedicion"
-);
+document.getElementById("ultimaMedicion");
 
-
-if(
-mediciones.length===0
-){
+if(!mediciones.length){
 
 cont.innerHTML =
 "No hay mediciones.";
@@ -762,10 +703,8 @@ return;
 
 }
 
-
 const m =
 mediciones[0];
-
 
 cont.innerHTML = `
 
@@ -774,28 +713,17 @@ ${m.sistolica} / ${m.diastolica}
 </div>
 
 <div class="pulso">
-❤️ Pulso:
-${m.pulso ?? "-"} lpm
+❤️ Pulso: ${m.pulso ?? "-"} lpm
 </div>
 
 <div class="detalle">
-
-${formatearFecha(m.fecha)}
-
--
-
-${m.hora || ""}
-
+${formatearFecha(m.fecha)} - ${m.hora || ""}
 </div>
 
 ${
 m.observacion
 ?
-`
-<div class="detalle">
-${escaparHTML(m.observacion)}
-</div>
-`
+`<div class="detalle">${escaparHTML(m.observacion)}</div>`
 :
 ""
 }
@@ -806,33 +734,23 @@ ${escaparHTML(m.observacion)}
 
 
 /* =====================================================
-   GUARDAR NUEVA MEDICION
+   GUARDAR
 ===================================================== */
 
-document.getElementById(
-"btnGuardar"
-).addEventListener(
-"click",
-guardarMedicion
-);
+document.getElementById("btnGuardar")
+.addEventListener("click",guardarMedicion);
 
 
 async function guardarMedicion(){
 
 const sis =
-Number(
-sistolica.value
-);
+Number(sistolica.value);
 
 const dia =
-Number(
-diastolica.value
-);
+Number(diastolica.value);
 
 const pul =
-Number(
-pulso.value
-);
+Number(pulso.value);
 
 
 if(
@@ -870,9 +788,7 @@ return;
 }
 
 
-if(
-sis<=dia
-){
+if(sis<=dia){
 
 alert(
 "Revisá la medición: la sistólica debe ser mayor que la diastólica."
@@ -887,37 +803,28 @@ const confirmar =
 confirm(
 
 `Confirmá la medición:\n\n`+
-
 `Presión: ${sis}/${dia}\n`+
-
 `Pulso: ${pul} lpm\n`+
-
 `Fecha: ${formatearFecha(fecha.value)}\n`+
-
 `Hora: ${hora.value}\n\n`+
-
 `¿Los valores son correctos?`
 
 );
 
 
-if(
-!confirmar
-)
+if(!confirmar)
 return;
 
 
 const boton =
-document.getElementById(
-"btnGuardar"
-);
+document.getElementById("btnGuardar");
 
 
 try{
 
 boton.disabled=true;
 
-boton.textContent =
+boton.textContent=
 "Guardando...";
 
 
@@ -974,7 +881,7 @@ alert(
 
 boton.disabled=false;
 
-boton.textContent =
+boton.textContent=
 "💾 Guardar medición";
 
 }
@@ -983,7 +890,7 @@ boton.textContent =
 
 
 /* =====================================================
-   LIMPIAR FORMULARIO
+   LIMPIAR
 ===================================================== */
 
 function limpiarFormulario(){
@@ -1012,14 +919,9 @@ fechaHoraActual();
 function mostrarHistorial(){
 
 const lista =
-document.getElementById(
-"listaHistorial"
-);
+document.getElementById("listaHistorial");
 
-
-if(
-mediciones.length===0
-){
+if(!mediciones.length){
 
 lista.innerHTML =
 "No hay mediciones.";
@@ -1030,96 +932,67 @@ return;
 
 
 lista.innerHTML =
-
-mediciones.map(
-m=>`
+mediciones.map(m=>`
 
 <div class="registro">
 
 <div class="registroPresion">
-
-${m.sistolica}/${m.diastolica}
-mmHg
-
+${m.sistolica}/${m.diastolica} mmHg
 </div>
 
 <div>
-
-❤️ Pulso:
-${m.pulso ?? "-"} lpm
-
+❤️ Pulso: ${m.pulso ?? "-"} lpm
 </div>
 
 <div class="detalle">
-
-📅
-${formatearFecha(m.fecha)}
-
+📅 ${formatearFecha(m.fecha)}
 &nbsp;
-
-🕐
-${m.hora || ""}
-
+🕐 ${m.hora || ""}
 </div>
 
 ${
 m.observacion
 ?
-`
-<div class="detalle">
-${escaparHTML(m.observacion)}
-</div>
-`
+`<div class="detalle">${escaparHTML(m.observacion)}</div>`
 :
 ""
 }
 
 </div>
 
-`
-).join("");
+`).join("");
 
 }
 
 
 /* =====================================================
-   CALCULOS DEL INFORME
+   CALCULAR INFORME
 ===================================================== */
 
 function calcularInforme(datos){
 
-if(
-!datos.length
-)
+if(!datos.length)
 return null;
 
 
-const promedio =
-campo => {
+const promedio = campo => {
 
 const valores =
 datos.filter(
-m =>
-Number(m[campo])
+m=>Number(m[campo])
 );
 
-if(
-!valores.length
-)
+if(!valores.length)
 return null;
-
 
 return Math.round(
 
 valores.reduce(
-(s,m)=>
-s+Number(m[campo]),
+(s,m)=>s+Number(m[campo]),
 0
 )
 
-/
-
-valores.length
+/ valores.length
 
 );
 
@@ -1174,7 +1047,7 @@ m=>Number(m.diastolica)
 
 
 /* =====================================================
-   BLOQUE VISUAL DEL INFORME
+   BLOQUES INFORME
 ===================================================== */
 
 function bloqueInforme(
@@ -1183,9 +1056,7 @@ subtitulo,
 datos
 ){
 
-if(
-!datos
-){
+if(!datos){
 
 return `
 
@@ -1220,7 +1091,6 @@ ${subtitulo}
 
 
 <div class="resumen">
-
 
 <div class="resumenDato">
 
@@ -1265,7 +1135,6 @@ Mínimos registrados
 
 </div>
 
-
 </div>
 
 
@@ -1273,8 +1142,7 @@ Mínimos registrados
 class="detalle"
 style="text-align:center;margin-top:12px">
 
-${datos.cantidad}
-mediciones
+${datos.cantidad} mediciones
 
 </div>
 
@@ -1286,7 +1154,7 @@ mediciones
 
 
 /* =====================================================
-   INFORME GENERAL + ANTES/DESPUES
+   INFORME
 ===================================================== */
 
 function generarInforme(){
@@ -1305,9 +1173,7 @@ Number(m.diastolica)
 );
 
 
-if(
-!validas.length
-){
+if(!validas.length){
 
 c.innerHTML =
 "Sin datos.";
@@ -1318,18 +1184,14 @@ return;
 
 
 /*
-=====================================================
-PERIODOS
+ANTES DE DILCORAN:
+17 y 18/09.
 
-Antes:
-17 y 18 de septiembre.
-
-Inicio de Dilcoran:
+INICIO DEL TRATAMIENTO:
 19/09/2026.
 
-Las mediciones registradas disponibles después
-del inicio comienzan el 21/09.
-=====================================================
+Las mediciones posteriores disponibles
+comienzan el 21/09.
 */
 
 const antes =
@@ -1347,28 +1209,19 @@ m.fecha >= "2026-09-19"
 
 
 const general =
-calcularInforme(
-validas
-);
+calcularInforme(validas);
 
 const previo =
-calcularInforme(
-antes
-);
+calcularInforme(antes);
 
 const tratamiento =
-calcularInforme(
-conMedicacion
-);
+calcularInforme(conMedicacion);
 
 
-let evolucion = "";
+let evolucion="";
 
 
-if(
-previo &&
-tratamiento
-){
+if(previo && tratamiento){
 
 const diferenciaSys =
 tratamiento.sys -
@@ -1377,15 +1230,6 @@ previo.sys;
 const diferenciaDia =
 tratamiento.dia -
 previo.dia;
-
-const diferenciaPulso =
-tratamiento.pulso !== null &&
-previo.pulso !== null
-?
-tratamiento.pulso -
-previo.pulso
-:
-null;
 
 
 const textoSys =
@@ -1412,22 +1256,6 @@ diferenciaDia > 0
 "no cambió";
 
 
-const textoPulso =
-diferenciaPulso === null
-?
-"No hay suficientes datos de pulso para comparar."
-:
-diferenciaPulso < 0
-?
-`El pulso promedio bajó ${Math.abs(diferenciaPulso)} lpm.`
-:
-diferenciaPulso > 0
-?
-`El pulso promedio subió ${diferenciaPulso} lpm.`
-:
-"El pulso promedio no cambió.";
-
-
 evolucion = `
 
 <div class="evolucion">
@@ -1436,28 +1264,21 @@ evolucion = `
 📉 Comparación antes vs. con medicación
 </h3>
 
-
 Antes de Dilcoran:
 
 <strong>
 ${previo.sys}/${previo.dia}
-</strong>
-
-mmHg.
+</strong> mmHg.
 
 <br>
-
 
 Con Dilcoran:
 
 <strong>
 ${tratamiento.sys}/${tratamiento.dia}
-</strong>
-
-mmHg.
+</strong> mmHg.
 
 <br><br>
-
 
 La sistólica promedio
 <strong>${textoSys}</strong>.
@@ -1466,10 +1287,6 @@ La sistólica promedio
 
 La diastólica promedio
 <strong>${textoDia}</strong>.
-
-<br>
-
-${textoPulso}
 
 </div>
 
@@ -1486,13 +1303,11 @@ ${bloqueInforme(
 general
 )}
 
-
 ${bloqueInforme(
 "⏮️ Antes de Dilcoran",
 "17/09/2026 al 18/09/2026",
 previo
 )}
-
 
 ${bloqueInforme(
 "💊 Con Dilcoran",
@@ -1500,14 +1315,13 @@ ${bloqueInforme(
 tratamiento
 )}
 
-
 ${evolucion}
-
 
 <div class="nota">
 
-El corte utilizado para la comparación es el
-inicio de Dilcoran el 19/09/2026.
+El corte utilizado para la comparación es
+el inicio de Dilcoran el 19/09/2026.
+
 El informe resume las mediciones registradas
 y no reemplaza la evaluación médica.
 
@@ -1519,7 +1333,7 @@ y no reemplaza la evaluación médica.
 
 
 /* =====================================================
-   DESCARGAR PARA EXCEL
+   EXCEL REAL XLSX
 ===================================================== */
 
 document.getElementById(
@@ -1532,9 +1346,7 @@ descargarExcel
 
 function descargarExcel(){
 
-if(
-!mediciones.length
-){
+if(!mediciones.length){
 
 alert(
 "No hay mediciones para exportar."
@@ -1546,16 +1358,23 @@ return;
 
 
 /*
-Se genera CSV compatible con Excel.
-Usamos punto y coma para que las columnas
-se abran correctamente con configuración
-regional argentina.
+Comprobamos que la librería XLSX esté disponible.
 */
 
-let csv =
+if(typeof XLSX === "undefined"){
 
-"Fecha;Hora;Sistolica;Diastolica;Pulso;Periodo;Observacion\n";
+alert(
+"No se pudo cargar el generador de Excel. Revisá tu conexión a Internet e intentá nuevamente."
+);
 
+return;
+
+}
+
+
+/* =====================================================
+   HOJA 1: MEDICIONES
+===================================================== */
 
 const ordenadas =
 [...mediciones].sort(
@@ -1573,106 +1392,337 @@ return A.localeCompare(B);
 );
 
 
-ordenadas.forEach(
-m=>{
+const datosExcel =
+ordenadas.map(m=>({
 
-const periodo =
+"Fecha":
+formatearFecha(m.fecha),
+
+"Hora":
+m.hora || "",
+
+"Sistólica":
+Number(m.sistolica) || "",
+
+"Diastólica":
+Number(m.diastolica) || "",
+
+"Pulso":
+m.pulso !== null &&
+m.pulso !== undefined
+?
+Number(m.pulso)
+:
+"",
+
+"Período":
 m.fecha < "2026-09-19"
 ?
 "Antes de Dilcoran"
 :
-"Con Dilcoran";
+"Con Dilcoran",
 
-
-const obs =
-String(
+"Observación":
 m.observacion || ""
-)
-.replaceAll(
-'"',
-'""'
-)
-.replaceAll(
-"\n",
-" "
+
+}));
+
+
+const hojaMediciones =
+XLSX.utils.json_to_sheet(
+datosExcel
 );
 
 
-csv +=
+/*
+Anchos de columnas.
+*/
 
-`${formatearFecha(m.fecha)};` +
+hojaMediciones["!cols"] = [
 
-`${m.hora || ""};` +
+{wch:14},
+{wch:10},
+{wch:12},
+{wch:12},
+{wch:10},
+{wch:20},
+{wch:48}
 
-`${m.sistolica || ""};` +
-
-`${m.diastolica || ""};` +
-
-`${m.pulso ?? ""};` +
-
-`${periodo};` +
-
-`"${obs}"\n`;
-
-});
+];
 
 
-const blob =
-new Blob(
-[
-"\uFEFF" + csv
-],
-{
-type:
-"text/csv;charset=utf-8;"
+/*
+Filtro automático.
+*/
+
+if(datosExcel.length){
+
+hojaMediciones["!autofilter"] = {
+
+ref:
+`A1:G${datosExcel.length+1}`
+
+};
+
 }
+
+
+/* =====================================================
+   HOJA 2: INFORME
+===================================================== */
+
+const validas =
+mediciones.filter(
+m=>
+Number(m.sistolica) &&
+Number(m.diastolica)
 );
 
 
-const url =
-URL.createObjectURL(
-blob
+const antes =
+validas.filter(
+m=>
+m.fecha < "2026-09-19"
 );
 
 
-const enlace =
-document.createElement(
-"a"
+const conMedicacion =
+validas.filter(
+m=>
+m.fecha >= "2026-09-19"
 );
 
 
-enlace.href =
-url;
+const general =
+calcularInforme(validas);
+
+const previo =
+calcularInforme(antes);
+
+const tratamiento =
+calcularInforme(conMedicacion);
 
 
-enlace.download =
-`mi-presion-${new Date()
+const filasInforme = [
+
+["MI PRESIÓN - INFORME"],
+
+[],
+
+[
+"Período",
+"Cantidad",
+"Promedio sistólica",
+"Promedio diastólica",
+"Pulso promedio",
+"Sistólica máxima",
+"Sistólica mínima",
+"Diastólica máxima",
+"Diastólica mínima"
+]
+
+];
+
+
+function agregarFilaInforme(
+nombre,
+datos
+){
+
+if(!datos){
+
+filasInforme.push([
+nombre,
+0,
+"",
+"",
+"",
+"",
+"",
+"",
+""
+]);
+
+return;
+
+}
+
+
+filasInforme.push([
+
+nombre,
+
+datos.cantidad,
+
+datos.sys,
+
+datos.dia,
+
+datos.pulso ?? "",
+
+datos.maxSys,
+
+datos.minSys,
+
+datos.maxDia,
+
+datos.minDia
+
+]);
+
+}
+
+
+agregarFilaInforme(
+"General",
+general
+);
+
+
+agregarFilaInforme(
+"Antes de Dilcoran",
+previo
+);
+
+
+agregarFilaInforme(
+"Con Dilcoran",
+tratamiento
+);
+
+
+filasInforme.push([]);
+
+filasInforme.push([
+"Inicio de Dilcoran",
+"19/09/2026"
+]);
+
+
+if(previo && tratamiento){
+
+filasInforme.push([]);
+
+filasInforme.push([
+"COMPARACIÓN ANTES VS. CON MEDICACIÓN"
+]);
+
+
+filasInforme.push([
+
+"Cambio sistólica promedio",
+
+tratamiento.sys -
+previo.sys,
+
+"mmHg"
+
+]);
+
+
+filasInforme.push([
+
+"Cambio diastólica promedio",
+
+tratamiento.dia -
+previo.dia,
+
+"mmHg"
+
+]);
+
+
+if(
+previo.pulso !== null &&
+tratamiento.pulso !== null
+){
+
+filasInforme.push([
+
+"Cambio pulso promedio",
+
+tratamiento.pulso -
+previo.pulso,
+
+"lpm"
+
+]);
+
+}
+
+}
+
+
+filasInforme.push([]);
+
+filasInforme.push([
+
+"Nota",
+
+"El informe resume las mediciones registradas y no reemplaza la evaluación médica."
+
+]);
+
+
+const hojaInforme =
+XLSX.utils.aoa_to_sheet(
+filasInforme
+);
+
+
+hojaInforme["!cols"] = [
+
+{wch:34},
+{wch:20},
+{wch:20},
+{wch:20},
+{wch:18},
+{wch:18},
+{wch:18},
+{wch:18},
+{wch:18}
+
+];
+
+
+/* =====================================================
+   CREAR ARCHIVO
+===================================================== */
+
+const libro =
+XLSX.utils.book_new();
+
+
+XLSX.utils.book_append_sheet(
+libro,
+hojaMediciones,
+"Mediciones"
+);
+
+
+XLSX.utils.book_append_sheet(
+libro,
+hojaInforme,
+"Informe"
+);
+
+
+const hoy =
+new Date()
 .toISOString()
-.slice(0,10)}.csv`;
+.slice(0,10);
 
 
-document.body.appendChild(
-enlace
-);
-
-
-enlace.click();
-
-
-document.body.removeChild(
-enlace
-);
-
-
-URL.revokeObjectURL(
-url
+XLSX.writeFile(
+libro,
+`Mi-Presion-${hoy}.xlsx`
 );
 
 }
 
 
 /* =====================================================
-   BOTONES HISTORIAL / INFORME
+   BOTONES
 ===================================================== */
 
 document.getElementById(
@@ -1685,7 +1735,6 @@ const panel =
 document.getElementById(
 "panelHistorial"
 );
-
 
 panel.style.display =
 panel.style.display==="block"
@@ -1709,7 +1758,6 @@ document.getElementById(
 "panelInformes"
 );
 
-
 panel.style.display =
 panel.style.display==="block"
 ?
@@ -1727,21 +1775,14 @@ panel.style.display==="block"
 
 function formatearFecha(f){
 
-if(
-!f
-)
+if(!f)
 return "";
-
 
 const p =
 f.split("-");
 
-
-if(
-p.length!==3
-)
+if(p.length!==3)
 return f;
-
 
 return `${p[2]}/${p[1]}/${p[0]}`;
 
@@ -1751,14 +1792,10 @@ return `${p[2]}/${p[1]}/${p[0]}`;
 function escaparHTML(texto){
 
 const div =
-document.createElement(
-"div"
-);
-
+document.createElement("div");
 
 div.textContent =
 texto || "";
-
 
 return div.innerHTML;
 
@@ -1775,24 +1812,13 @@ try{
 
 fechaHoraActual();
 
-
-/*
-Importa las mediciones históricas únicamente
-si todavía no existen en Firebase.
-*/
-
 await importarHistoricas();
-
 
 await cargarMediciones();
 
-
 }catch(error){
 
-console.error(
-error
-);
-
+console.error(error);
 
 document.getElementById(
 "ultimaMedicion"
