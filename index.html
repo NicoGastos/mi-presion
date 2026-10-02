@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Mi Presión</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+
+    .contenedor {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #b91c1c;
+      margin-bottom: 5px;
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 25px;
+    }
+
+    .tarjeta {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 17px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #b91c1c;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .ultima {
+      text-align: center;
+    }
+
+    .presion {
+      font-size: 42px;
+      font-weight: bold;
+      color: #b91c1c;
+      margin: 10px 0;
+    }
+
+    .pulso {
+      font-size: 18px;
+      color: #4b5563;
+    }
+
+    .botones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .secundario {
+      background: #374151;
+    }
+
+    .sin-mediciones {
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+  <h1>❤️ Mi Presión</h1>
+  <div class="subtitulo">Registro personal de presión arterial</div>
+
+  <div class="tarjeta ultima">
+    <h2>Última medición</h2>
+
+    <div id="ultimaMedicion">
+      <div class="sin-mediciones">
+        Todavía no hay mediciones registradas.
+      </div>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+
+    <h2>Nueva medición</h2>
+
+    <label>Fecha</label>
+    <input type="date" id="fecha">
+
+    <label>Hora</label>
+    <input type="time" id="hora">
+
+    <label>Presión sistólica (máxima)</label>
+    <input type="number" id="sistolica" placeholder="Ej: 120">
+
+    <label>Presión diastólica (mínima)</label>
+    <input type="number" id="diastolica" placeholder="Ej: 80">
+
+    <label>Pulso</label>
+    <input type="number" id="pulso" placeholder="Ej: 70">
+
+    <label>Observación</label>
+    <textarea id="observacion"
+      placeholder="Ej: 5 minutos de reposo, recién levantado..."></textarea>
+
+    <button onclick="guardarMedicion()">
+      Guardar medición
+    </button>
+
+  </div>
+
+  <div class="tarjeta">
+
+    <h2>Mis registros</h2>
+
+    <div class="botones">
+      <button class="secundario">📋 Historial</button>
+      <button class="secundario">📊 Informes</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  const ahora = new Date();
+
+  document.getElementById("fecha").value =
+    ahora.toISOString().split("T")[0];
+
+  document.getElementById("hora").value =
+    ahora.toTimeString().slice(0,5);
+
+
+  function guardarMedicion() {
+
+    const sistolica =
+      document.getElementById("sistolica").value;
+
+    const diastolica =
+      document.getElementById("diastolica").value;
+
+    const pulso =
+      document.getElementById("pulso").value;
+
+    const fecha =
+      document.getElementById("fecha").value;
+
+    const hora =
+      document.getElementById("hora").value;
+
+
+    if (!sistolica || !diastolica || !pulso) {
+
+      alert("Completá presión y pulso.");
+
+      return;
+    }
+
+
+    document.getElementById("ultimaMedicion").innerHTML = `
+
+      <div class="presion">
+        ${sistolica} / ${diastolica}
+      </div>
+
+      <div class="pulso">
+        ❤️ Pulso: ${pulso} lpm
+      </div>
+
+      <div style="margin-top:10px;color:#6b7280">
+        ${fecha} - ${hora}
+      </div>
+
+    `;
+
+    alert("Medición cargada correctamente.");
+
+  }
+
+</script>
+
+</body>
+</html>
