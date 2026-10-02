@@ -139,6 +139,10 @@ button:disabled { opacity:.55; }
   border-bottom:1px solid #e5e7eb;
 }
 
+.registro:last-child {
+  border-bottom:none;
+}
+
 .registroPresion {
   font-size:22px;
   font-weight:bold;
@@ -236,6 +240,7 @@ button:disabled { opacity:.55; }
 @media(max-width:450px) {
   .contenedor { padding:10px; }
   .tarjeta { padding:15px; }
+  .presion { font-size:38px; }
 }
 </style>
 
@@ -248,8 +253,13 @@ button:disabled { opacity:.55; }
 <div class="contenedor">
 
 <h1>❤️ Mi Presión</h1>
-<div class="subtitulo">Registro personal de presión arterial</div>
 
+<div class="subtitulo">
+Registro personal de presión arterial
+</div>
+
+
+<!-- ULTIMA MEDICION -->
 
 <div class="tarjeta ultima">
 
@@ -261,6 +271,8 @@ Cargando...
 
 </div>
 
+
+<!-- NUEVA MEDICION -->
 
 <div class="tarjeta">
 
@@ -290,18 +302,36 @@ capture="environment">
 <input type="time" id="hora">
 
 <label>Presión sistólica (máxima)</label>
-<input type="number" id="sistolica" inputmode="numeric" placeholder="Ej: 120">
+
+<input
+type="number"
+id="sistolica"
+inputmode="numeric"
+placeholder="Ej: 120">
 
 <label>Presión diastólica (mínima)</label>
-<input type="number" id="diastolica" inputmode="numeric" placeholder="Ej: 80">
+
+<input
+type="number"
+id="diastolica"
+inputmode="numeric"
+placeholder="Ej: 80">
 
 <label>Pulso</label>
-<input type="number" id="pulso" inputmode="numeric" placeholder="Ej: 70">
+
+<input
+type="number"
+id="pulso"
+inputmode="numeric"
+placeholder="Ej: 70">
 
 
 <!-- ALERTA AUTOMATICA -->
 
-<div id="alertaPresion" class="alertaPresion"></div>
+<div
+id="alertaPresion"
+class="alertaPresion">
+</div>
 
 
 <label>Observación</label>
@@ -318,30 +348,45 @@ placeholder="Ej: 5 minutos de reposo, recién levantado..."></textarea>
 </div>
 
 
+<!-- MIS REGISTROS -->
+
 <div class="tarjeta">
 
 <h2>Mis registros</h2>
 
 <div class="botones">
 
-<button class="secundario" id="btnHistorial">
+<button
+type="button"
+class="secundario"
+id="btnHistorial">
 📋 Historial
 </button>
 
-<button class="secundario" id="btnInformes">
+<button
+type="button"
+class="secundario"
+id="btnInformes">
 📊 Informe
 </button>
 
 </div>
 
-<button class="excel" id="btnExcel">
+<button
+type="button"
+class="excel"
+id="btnExcel">
 📥 Descargar Excel
 </button>
 
 </div>
 
 
-<div class="tarjeta" id="panelHistorial">
+<!-- HISTORIAL -->
+
+<div
+class="tarjeta"
+id="panelHistorial">
 
 <h2>📋 Historial completo</h2>
 
@@ -350,7 +395,11 @@ placeholder="Ej: 5 minutos de reposo, recién levantado..."></textarea>
 </div>
 
 
-<div class="tarjeta" id="panelInformes">
+<!-- INFORME -->
+
+<div
+class="tarjeta"
+id="panelInformes">
 
 <h2>📊 Informe de presión arterial</h2>
 
@@ -376,65 +425,85 @@ serverTimestamp
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 
-/* FIREBASE */
+/* =====================================================
+   FIREBASE
+===================================================== */
 
 const firebaseConfig = {
 
-apiKey:"AIzaSyDwES-u2Jm3zyhW_LqXCbLW-aoII38wjPU",
+apiKey:
+"AIzaSyDwES-u2Jm3zyhW_LqXCbLW-aoII38wjPU",
 
-authDomain:"mi-presion-4286e.firebaseapp.com",
+authDomain:
+"mi-presion-4286e.firebaseapp.com",
 
-projectId:"mi-presion-4286e",
+projectId:
+"mi-presion-4286e",
 
-storageBucket:"mi-presion-4286e.firebasestorage.app",
+storageBucket:
+"mi-presion-4286e.firebasestorage.app",
 
-messagingSenderId:"869630737307",
+messagingSenderId:
+"869630737307",
 
-appId:"1:869630737307:web:2aa3818c3475809450ff3e"
+appId:
+"1:869630737307:web:2aa3818c3475809450ff3e"
 
 };
 
 
-const app=initializeApp(firebaseConfig);
+const app =
+initializeApp(firebaseConfig);
 
-const db=getFirestore(app);
+const db =
+getFirestore(app);
 
-const medicionesRef=
+const medicionesRef =
 collection(db,"mediciones");
 
 
-/* ELEMENTOS */
+/* =====================================================
+   ELEMENTOS
+===================================================== */
 
-const fecha=document.getElementById("fecha");
+const fecha =
+document.getElementById("fecha");
 
-const hora=document.getElementById("hora");
+const hora =
+document.getElementById("hora");
 
-const sistolica=document.getElementById("sistolica");
+const sistolica =
+document.getElementById("sistolica");
 
-const diastolica=document.getElementById("diastolica");
+const diastolica =
+document.getElementById("diastolica");
 
-const pulso=document.getElementById("pulso");
+const pulso =
+document.getElementById("pulso");
 
-const observacion=document.getElementById("observacion");
+const observacion =
+document.getElementById("observacion");
 
-const alertaPresion=
+const alertaPresion =
 document.getElementById("alertaPresion");
 
-const fotoInput=
+const fotoInput =
 document.getElementById("fotoInput");
 
-const preview=
+const preview =
 document.getElementById("preview");
 
-const avisoFoto=
+const avisoFoto =
 document.getElementById("avisoFoto");
 
-let mediciones=[];
+let mediciones = [];
 
 
-/* HISTORICAS */
+/* =====================================================
+   MEDICIONES HISTORICAS
+===================================================== */
 
-const historicas=[
+const historicas = [
 
 ["2026-09-17","06:50",170,110,null,"Registro histórico"],
 
@@ -485,16 +554,19 @@ const historicas=[
 ];
 
 
-/* FECHA/HORA */
+/* =====================================================
+   FECHA / HORA
+===================================================== */
 
 function fechaHoraActual(){
 
-const d=new Date();
+const d =
+new Date();
 
-fecha.value=
+fecha.value =
 `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 
-hora.value=
+hora.value =
 `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 
 }
@@ -508,7 +580,7 @@ fechaHoraActual();
 
 function clasificarPresion(sys,dia){
 
-if(sys>180 || dia>120){
+if(sys > 180 || dia > 120){
 
 return {
 
@@ -521,14 +593,14 @@ clase:"alertaSevera",
 texto:
 `La lectura es ${sys}/${dia} mmHg. Esperá al menos 1 minuto y volvé a medirla. `+
 `Si continúa por encima de 180 y/o 120, contactá a un profesional de salud. `+
-`Si además tenés dolor de pecho, falta de aire, dolor de espalda, debilidad o adormecimiento, cambios en la visión o dificultad para hablar, buscá atención de emergencia.`
+`Si además tenés dolor de pecho, falta de aire, debilidad o adormecimiento, cambios en la visión o dificultad para hablar, buscá atención de emergencia.`
 
 };
 
 }
 
 
-if(sys>=140 || dia>=90){
+if(sys >= 140 || dia >= 90){
 
 return {
 
@@ -548,8 +620,8 @@ texto:
 
 
 if(
-(sys>=130 && sys<=139) ||
-(dia>=80 && dia<=89)
+(sys >= 130 && sys <= 139) ||
+(dia >= 80 && dia <= 89)
 ){
 
 return {
@@ -569,9 +641,9 @@ texto:
 
 
 if(
-sys>=120 &&
-sys<=129 &&
-dia<80
+sys >= 120 &&
+sys <= 129 &&
+dia < 80
 ){
 
 return {
@@ -590,7 +662,7 @@ texto:
 }
 
 
-if(sys<120 && dia<80){
+if(sys < 120 && dia < 80){
 
 return {
 
@@ -608,11 +680,6 @@ texto:
 }
 
 
-/*
-Casos poco habituales que no encajan exactamente
-en las combinaciones anteriores.
-*/
-
 return {
 
 nivel:"revisar",
@@ -629,46 +696,52 @@ texto:
 }
 
 
-/* MOSTRAR ALERTA AL ESCRIBIR */
+/* =====================================================
+   ALERTA AUTOMATICA
+===================================================== */
 
 function actualizarAlerta(){
 
-const sys=
+const sys =
 Number(sistolica.value);
 
-const dia=
+const dia =
 Number(diastolica.value);
 
 
 if(!sys || !dia){
 
-alertaPresion.style.display="none";
+alertaPresion.style.display =
+"none";
 
 return;
 
 }
 
 
-const resultado=
+const resultado =
 clasificarPresion(sys,dia);
 
 
-alertaPresion.className=
+alertaPresion.className =
 `alertaPresion ${resultado.clase}`;
 
 
-alertaPresion.innerHTML=
+alertaPresion.innerHTML = `
 
-`<div class="alertaTitulo">
+<div class="alertaTitulo">
 ${resultado.titulo}
 </div>
 
 <div>
 ${resultado.texto}
-</div>`;
+</div>
+
+`;
 
 
-alertaPresion.style.display="block";
+alertaPresion.style.display =
+"block";
 
 }
 
@@ -684,23 +757,28 @@ actualizarAlerta
 );
 
 
-/* FOTO */
+/* =====================================================
+   FOTO
+===================================================== */
 
-document.getElementById("btnFoto")
-.addEventListener("click",function(){
+document.getElementById(
+"btnFoto"
+).addEventListener(
+"click",
+function(){
 
-fotoInput.value="";
+fotoInput.value = "";
 
-preview.src="";
-preview.style.display="none";
+preview.src = "";
+preview.style.display = "none";
 
-avisoFoto.style.display="none";
+avisoFoto.style.display = "none";
 
-sistolica.value="";
-diastolica.value="";
-pulso.value="";
+sistolica.value = "";
+diastolica.value = "";
+pulso.value = "";
 
-alertaPresion.style.display="none";
+alertaPresion.style.display = "none";
 
 fechaHoraActual();
 
@@ -713,36 +791,47 @@ fotoInput.addEventListener(
 "change",
 function(){
 
-const archivo=
+const archivo =
 fotoInput.files[0];
 
-if(!archivo)return;
+if(!archivo)
+return;
 
-const url=
+const url =
 URL.createObjectURL(archivo);
 
-preview.src=url;
+preview.src =
+url;
 
-preview.style.display="block";
+preview.style.display =
+"block";
 
-avisoFoto.style.display="block";
+avisoFoto.style.display =
+"block";
 
 });
 
 
-/* IMPORTAR HISTORICAS */
+/* =====================================================
+   IMPORTAR HISTORICAS SIN DUPLICAR
+===================================================== */
 
 async function importarHistoricas(){
 
-const snapshot=
-await getDocs(medicionesRef);
+const snapshot =
+await getDocs(
+medicionesRef
+);
 
-const existentes=new Set();
+const existentes =
+new Set();
 
 
-snapshot.forEach(doc=>{
+snapshot.forEach(
+doc=>{
 
-const m=doc.data();
+const m =
+doc.data();
 
 existentes.add(
 `${m.fecha}|${m.hora}|${m.sistolica}|${m.diastolica}`
@@ -753,11 +842,13 @@ existentes.add(
 
 for(const h of historicas){
 
-const clave=
+const clave =
 `${h[0]}|${h[1]}|${h[2]}|${h[3]}`;
 
 
-if(existentes.has(clave))
+if(
+existentes.has(clave)
+)
 continue;
 
 
@@ -789,24 +880,31 @@ serverTimestamp()
 );
 
 
-existentes.add(clave);
+existentes.add(
+clave
+);
 
 }
 
 }
 
 
-/* CARGAR */
+/* =====================================================
+   CARGAR MEDICIONES
+===================================================== */
 
 async function cargarMediciones(){
 
-const snapshot=
-await getDocs(medicionesRef);
+const snapshot =
+await getDocs(
+medicionesRef
+);
 
-mediciones=[];
+mediciones = [];
 
 
-snapshot.forEach(doc=>{
+snapshot.forEach(
+doc=>{
 
 mediciones.push({
 id:doc.id,
@@ -816,17 +914,19 @@ id:doc.id,
 });
 
 
-mediciones.sort((a,b)=>{
+mediciones.sort(
+(a,b)=>{
 
-const A=
-`${a.fecha||""} ${a.hora||""}`;
+const A =
+`${a.fecha || ""} ${a.hora || ""}`;
 
-const B=
-`${b.fecha||""} ${b.hora||""}`;
+const B =
+`${b.fecha || ""} ${b.hora || ""}`;
 
 return B.localeCompare(A);
 
-});
+}
+);
 
 
 mostrarUltima();
@@ -838,44 +938,58 @@ generarInforme();
 }
 
 
-/* ULTIMA */
+/* =====================================================
+   ULTIMA MEDICION
+===================================================== */
 
 function mostrarUltima(){
 
-const cont=
-document.getElementById("ultimaMedicion");
+const cont =
+document.getElementById(
+"ultimaMedicion"
+);
 
 
 if(!mediciones.length){
 
-cont.innerHTML="No hay mediciones.";
+cont.innerHTML =
+"No hay mediciones.";
 
 return;
 
 }
 
 
-const m=mediciones[0];
+const m =
+mediciones[0];
 
-const categoria=
+
+const categoria =
 clasificarPresion(
 Number(m.sistolica),
 Number(m.diastolica)
 );
 
 
-cont.innerHTML=`
+cont.innerHTML = `
 
 <div class="presion">
 ${m.sistolica} / ${m.diastolica}
 </div>
 
 <div class="pulso">
-❤️ Pulso: ${m.pulso ?? "-"} lpm
+❤️ Pulso:
+${m.pulso ?? "-"} lpm
 </div>
 
 <div class="detalle">
-${formatearFecha(m.fecha)} - ${m.hora||""}
+
+${formatearFecha(m.fecha)}
+
+-
+
+${m.hora || ""}
+
 </div>
 
 <div style="
@@ -888,7 +1002,11 @@ ${categoria.titulo}
 ${
 m.observacion
 ?
-`<div class="detalle">${escaparHTML(m.observacion)}</div>`
+`
+<div class="detalle">
+${escaparHTML(m.observacion)}
+</div>
+`
 :
 ""
 }
@@ -898,10 +1016,13 @@ m.observacion
 }
 
 
-/* GUARDAR */
+/* =====================================================
+   GUARDAR
+===================================================== */
 
-document.getElementById("btnGuardar")
-.addEventListener(
+document.getElementById(
+"btnGuardar"
+).addEventListener(
 "click",
 guardarMedicion
 );
@@ -909,11 +1030,14 @@ guardarMedicion
 
 async function guardarMedicion(){
 
-const sis=Number(sistolica.value);
+const sis =
+Number(sistolica.value);
 
-const dia=Number(diastolica.value);
+const dia =
+Number(diastolica.value);
 
-const pul=Number(pulso.value);
+const pul =
+Number(pulso.value);
 
 
 if(
@@ -934,12 +1058,12 @@ return;
 
 
 if(
-sis<50 ||
-sis>300 ||
-dia<30 ||
-dia>200 ||
-pul<30 ||
-pul>220
+sis < 50 ||
+sis > 300 ||
+dia < 30 ||
+dia > 200 ||
+pul < 30 ||
+pul > 220
 ){
 
 alert(
@@ -951,7 +1075,7 @@ return;
 }
 
 
-if(sis<=dia){
+if(sis <= dia){
 
 alert(
 "Revisá la medición: la sistólica debe ser mayor que la diastólica."
@@ -962,16 +1086,16 @@ return;
 }
 
 
-const categoria=
-clasificarPresion(sis,dia);
+const categoria =
+clasificarPresion(
+sis,
+dia
+);
 
 
-/*
-Si es severa mostramos primero
-la advertencia de seguridad.
-*/
-
-if(categoria.nivel==="severa"){
+if(
+categoria.nivel === "severa"
+){
 
 alert(
 "🚨 PRESIÓN MUY ALTA\n\n"+
@@ -981,7 +1105,7 @@ categoria.texto
 }
 
 
-const confirmar=
+const confirmar =
 confirm(
 
 `${categoria.titulo}\n\n`+
@@ -999,36 +1123,45 @@ confirm(
 );
 
 
-if(!confirmar)return;
+if(!confirmar)
+return;
 
 
-const boton=
-document.getElementById("btnGuardar");
+const boton =
+document.getElementById(
+"btnGuardar"
+);
 
 
 try{
 
-boton.disabled=true;
+boton.disabled = true;
 
-boton.textContent="Guardando...";
+boton.textContent =
+"Guardando...";
 
 
 await addDoc(
 medicionesRef,
 {
 
-fecha:fecha.value,
+fecha:
+fecha.value,
 
-hora:hora.value,
+hora:
+hora.value,
 
 fechaHora:
 `${fecha.value}T${hora.value}:00`,
 
-sistolica:sis,
+sistolica:
+sis,
 
-diastolica:dia,
+diastolica:
+dia,
 
-pulso:pul,
+pulso:
+pul,
 
 categoria:
 categoria.nivel,
@@ -1036,7 +1169,8 @@ categoria.nivel,
 observacion:
 observacion.value.trim(),
 
-historica:false,
+historica:
+false,
 
 creadoEn:
 serverTimestamp()
@@ -1065,9 +1199,10 @@ alert(
 
 }finally{
 
-boton.disabled=false;
+boton.disabled =
+false;
 
-boton.textContent=
+boton.textContent =
 "💾 Guardar medición";
 
 }
@@ -1075,51 +1210,59 @@ boton.textContent=
 }
 
 
-/* LIMPIAR */
+/* =====================================================
+   LIMPIAR
+===================================================== */
 
 function limpiarFormulario(){
 
-sistolica.value="";
-diastolica.value="";
-pulso.value="";
-observacion.value="";
+sistolica.value = "";
+diastolica.value = "";
+pulso.value = "";
+observacion.value = "";
 
-fotoInput.value="";
+fotoInput.value = "";
 
-preview.src="";
-preview.style.display="none";
+preview.src = "";
+preview.style.display = "none";
 
-avisoFoto.style.display="none";
+avisoFoto.style.display = "none";
 
-alertaPresion.style.display="none";
+alertaPresion.style.display = "none";
 
 fechaHoraActual();
 
 }
 
 
-/* HISTORIAL */
+/* =====================================================
+   HISTORIAL
+===================================================== */
 
 function mostrarHistorial(){
 
-const lista=
-document.getElementById("listaHistorial");
+const lista =
+document.getElementById(
+"listaHistorial"
+);
 
 
 if(!mediciones.length){
 
-lista.innerHTML="No hay mediciones.";
+lista.innerHTML =
+"No hay mediciones.";
 
 return;
 
 }
 
 
-lista.innerHTML=
+lista.innerHTML =
 
-mediciones.map(m=>{
+mediciones.map(
+m=>{
 
-const categoria=
+const categoria =
 clasificarPresion(
 Number(m.sistolica),
 Number(m.diastolica)
@@ -1131,30 +1274,48 @@ return `
 <div class="registro">
 
 <div class="registroPresion">
-${m.sistolica}/${m.diastolica} mmHg
+
+${m.sistolica}/${m.diastolica}
+mmHg
+
 </div>
 
 <div>
-❤️ Pulso: ${m.pulso ?? "-"} lpm
+
+❤️ Pulso:
+${m.pulso ?? "-"} lpm
+
 </div>
 
 <div style="
 font-weight:bold;
 margin-top:5px;
 ">
+
 ${categoria.titulo}
+
 </div>
 
 <div class="detalle">
-📅 ${formatearFecha(m.fecha)}
+
+📅
+${formatearFecha(m.fecha)}
+
 &nbsp;
-🕐 ${m.hora||""}
+
+🕐
+${m.hora || ""}
+
 </div>
 
 ${
 m.observacion
 ?
-`<div class="detalle">${escaparHTML(m.observacion)}</div>`
+`
+<div class="detalle">
+${escaparHTML(m.observacion)}
+</div>
+`
 :
 ""
 }
@@ -1163,61 +1324,92 @@ m.observacion
 
 `;
 
-}).join("");
+}
+).join("");
 
 }
 
 
-/* INFORME */
+/* =====================================================
+   INFORME
+===================================================== */
 
 function calcularInforme(datos){
 
-if(!datos.length)return null;
+if(!datos.length)
+return null;
 
 
-const promedio=campo=>{
+const promedio =
+campo => {
 
-const valores=
-datos.filter(m=>Number(m[campo]));
+const valores =
+datos.filter(
+m => Number(m[campo])
+);
 
-if(!valores.length)return null;
+if(!valores.length)
+return null;
 
 
 return Math.round(
 
 valores.reduce(
-(s,m)=>s+Number(m[campo]),
+(s,m) =>
+s + Number(m[campo]),
 0
 )
 
-/valores.length
+/
+
+valores.length
 
 );
 
 };
 
 
-return{
+return {
 
-cantidad:datos.length,
+cantidad:
+datos.length,
 
-sys:promedio("sistolica"),
+sys:
+promedio("sistolica"),
 
-dia:promedio("diastolica"),
+dia:
+promedio("diastolica"),
 
-pulso:promedio("pulso"),
+pulso:
+promedio("pulso"),
 
 maxSys:
-Math.max(...datos.map(m=>Number(m.sistolica))),
+Math.max(
+...datos.map(
+m => Number(m.sistolica)
+)
+),
 
 minSys:
-Math.min(...datos.map(m=>Number(m.sistolica))),
+Math.min(
+...datos.map(
+m => Number(m.sistolica)
+)
+),
 
 maxDia:
-Math.max(...datos.map(m=>Number(m.diastolica))),
+Math.max(
+...datos.map(
+m => Number(m.diastolica)
+)
+),
 
 minDia:
-Math.min(...datos.map(m=>Number(m.diastolica)))
+Math.min(
+...datos.map(
+m => Number(m.diastolica)
+)
+)
 
 };
 
@@ -1230,7 +1422,8 @@ subtitulo,
 datos
 ){
 
-if(!datos)return "";
+if(!datos)
+return "";
 
 
 return `
@@ -1246,31 +1439,57 @@ ${subtitulo}
 <div class="resumen">
 
 <div class="resumenDato">
-<strong>${datos.sys}/${datos.dia}</strong>
+
+<strong>
+${datos.sys}/${datos.dia}
+</strong>
+
 Promedio
+
 </div>
 
+
 <div class="resumenDato">
-<strong>${datos.pulso ?? "-"}</strong>
+
+<strong>
+${datos.pulso ?? "-"}
+</strong>
+
 Pulso promedio
+
 </div>
 
+
 <div class="resumenDato">
-<strong>${datos.maxSys}/${datos.maxDia}</strong>
+
+<strong>
+${datos.maxSys}/${datos.maxDia}
+</strong>
+
 Máximos
+
 </div>
+
 
 <div class="resumenDato">
-<strong>${datos.minSys}/${datos.minDia}</strong>
+
+<strong>
+${datos.minSys}/${datos.minDia}
+</strong>
+
 Mínimos
-</div>
 
 </div>
 
-<div class="detalle"
+</div>
+
+
+<div
+class="detalle"
 style="text-align:center;margin-top:12px">
 
-${datos.cantidad} mediciones
+${datos.cantidad}
+mediciones
 
 </div>
 
@@ -1283,53 +1502,78 @@ ${datos.cantidad} mediciones
 
 function generarInforme(){
 
-const c=
-document.getElementById("contenidoInforme");
+const c =
+document.getElementById(
+"contenidoInforme"
+);
 
 
-const validas=
+const validas =
 mediciones.filter(
-m=>
+m =>
 Number(m.sistolica) &&
 Number(m.diastolica)
 );
 
 
-const antes=
+if(!validas.length){
+
+c.innerHTML =
+"Sin datos.";
+
+return;
+
+}
+
+
+const antes =
 validas.filter(
-m=>m.fecha<"2026-09-19"
+m =>
+m.fecha < "2026-09-19"
 );
 
 
-const conMedicacion=
+const conMedicacion =
 validas.filter(
-m=>m.fecha>="2026-09-19"
+m =>
+m.fecha >= "2026-09-19"
 );
 
 
-const general=
-calcularInforme(validas);
+const general =
+calcularInforme(
+validas
+);
 
-const previo=
-calcularInforme(antes);
+const previo =
+calcularInforme(
+antes
+);
 
-const tratamiento=
-calcularInforme(conMedicacion);
-
-
-let evolucion="";
-
-
-if(previo && tratamiento){
-
-const ds=
-tratamiento.sys-previo.sys;
-
-const dd=
-tratamiento.dia-previo.dia;
+const tratamiento =
+calcularInforme(
+conMedicacion
+);
 
 
-evolucion=`
+let evolucion = "";
+
+
+if(
+previo &&
+tratamiento
+){
+
+const ds =
+tratamiento.sys -
+previo.sys;
+
+const dd =
+tratamiento.dia -
+previo.dia;
+
+
+evolucion = `
 
 <div class="evolucion">
 
@@ -1338,26 +1582,38 @@ evolucion=`
 </h3>
 
 Antes:
+
 <strong>
 ${previo.sys}/${previo.dia}
-</strong> mmHg
+</strong>
+
+mmHg
 
 <br>
 
 Con medicación:
+
 <strong>
 ${tratamiento.sys}/${tratamiento.dia}
-</strong> mmHg
+</strong>
+
+mmHg
 
 <br><br>
 
 Cambio sistólica:
-<strong>${ds} mmHg</strong>
+
+<strong>
+${ds} mmHg
+</strong>
 
 <br>
 
 Cambio diastólica:
-<strong>${dd} mmHg</strong>
+
+<strong>
+${dd} mmHg
+</strong>
 
 </div>
 
@@ -1366,7 +1622,7 @@ Cambio diastólica:
 }
 
 
-c.innerHTML=
+c.innerHTML =
 
 bloqueInforme(
 "📊 General",
@@ -1397,21 +1653,29 @@ evolucion
 +
 
 `
+
 <div class="nota">
+
 Las categorías de presión utilizadas corresponden
 a la clasificación AHA/ACC para adultos.
+
 Una medición aislada no constituye por sí sola
 un diagnóstico médico.
+
 </div>
+
 `;
 
 }
 
 
-/* EXCEL */
+/* =====================================================
+   EXCEL XLSX
+===================================================== */
 
-document.getElementById("btnExcel")
-.addEventListener(
+document.getElementById(
+"btnExcel"
+).addEventListener(
 "click",
 descargarExcel
 );
@@ -1421,14 +1685,18 @@ function descargarExcel(){
 
 if(!mediciones.length){
 
-alert("No hay mediciones.");
+alert(
+"No hay mediciones."
+);
 
 return;
 
 }
 
 
-if(typeof XLSX==="undefined"){
+if(
+typeof XLSX === "undefined"
+){
 
 alert(
 "No se pudo cargar el generador de Excel."
@@ -1439,36 +1707,48 @@ return;
 }
 
 
-const ordenadas=
+const ordenadas =
 [...mediciones].sort(
-(a,b)=>
-`${a.fecha} ${a.hora}`.localeCompare(
+(a,b) =>
+
+`${a.fecha} ${a.hora}`
+
+.localeCompare(
+
 `${b.fecha} ${b.hora}`
+
 )
+
 );
 
 
-const datos=
-ordenadas.map(m=>{
+const datos =
+ordenadas.map(
+m=>{
 
-const cat=
+const cat =
 clasificarPresion(
 Number(m.sistolica),
 Number(m.diastolica)
 );
 
 
-return{
+return {
 
-Fecha:formatearFecha(m.fecha),
+Fecha:
+formatearFecha(m.fecha),
 
-Hora:m.hora||"",
+Hora:
+m.hora || "",
 
-Sistólica:Number(m.sistolica),
+Sistólica:
+Number(m.sistolica),
 
-Diastólica:Number(m.diastolica),
+Diastólica:
+Number(m.diastolica),
 
-Pulso:m.pulso ?? "",
+Pulso:
+m.pulso ?? "",
 
 "Clasificación":
 cat.titulo.replace(
@@ -1477,25 +1757,28 @@ cat.titulo.replace(
 ).trim(),
 
 "Período":
-m.fecha<"2026-09-19"
+m.fecha < "2026-09-19"
 ?
 "Antes de Dilcoran"
 :
 "Con Dilcoran",
 
 Observación:
-m.observacion||""
+m.observacion || ""
 
 };
 
-});
+}
+);
 
 
-const hoja=
-XLSX.utils.json_to_sheet(datos);
+const hoja =
+XLSX.utils.json_to_sheet(
+datos
+);
 
 
-hoja["!cols"]=[
+hoja["!cols"] = [
 
 {wch:14},
 {wch:10},
@@ -1509,25 +1792,51 @@ hoja["!cols"]=[
 ];
 
 
-const validas=
+if(datos.length){
+
+hoja["!autofilter"] = {
+
+ref:
+`A1:H${datos.length+1}`
+
+};
+
+}
+
+
+const validas =
 mediciones.filter(
-m=>Number(m.sistolica)&&Number(m.diastolica)
+m =>
+Number(m.sistolica) &&
+Number(m.diastolica)
 );
 
-const antes=
-validas.filter(m=>m.fecha<"2026-09-19");
 
-const despues=
-validas.filter(m=>m.fecha>="2026-09-19");
-
-const g=calcularInforme(validas);
-
-const a=calcularInforme(antes);
-
-const d=calcularInforme(despues);
+const antes =
+validas.filter(
+m =>
+m.fecha < "2026-09-19"
+);
 
 
-const filas=[
+const despues =
+validas.filter(
+m =>
+m.fecha >= "2026-09-19"
+);
+
+
+const g =
+calcularInforme(validas);
+
+const a =
+calcularInforme(antes);
+
+const d =
+calcularInforme(despues);
+
+
+const filas = [
 
 ["MI PRESIÓN - INFORME"],
 
@@ -1548,9 +1857,14 @@ const filas=[
 ];
 
 
-function fila(nombre,x){
+function fila(
+nombre,
+x
+){
 
-if(!x)return;
+if(!x)
+return;
+
 
 filas.push([
 
@@ -1569,28 +1883,76 @@ x.minDia
 }
 
 
-fila("General",g);
+fila(
+"General",
+g
+);
 
-fila("Antes de Dilcoran",a);
+fila(
+"Antes de Dilcoran",
+a
+);
 
-fila("Con Dilcoran",d);
+fila(
+"Con Dilcoran",
+d
+);
 
 
 filas.push([]);
 
 filas.push([
+
 "Inicio de Dilcoran",
 "19/09/2026"
+
 ]);
 
 
-const hojaInforme=
-XLSX.utils.aoa_to_sheet(filas);
+if(
+a &&
+d
+){
+
+filas.push([]);
+
+filas.push([
+"COMPARACIÓN ANTES VS. CON MEDICACIÓN"
+]);
+
+filas.push([
+
+"Cambio sistólica promedio",
+
+d.sys - a.sys,
+
+"mmHg"
+
+]);
+
+filas.push([
+
+"Cambio diastólica promedio",
+
+d.dia - a.dia,
+
+"mmHg"
+
+]);
+
+}
 
 
-hojaInforme["!cols"]=[
-{wch:30},
-{wch:15},
+const hojaInforme =
+XLSX.utils.aoa_to_sheet(
+filas
+);
+
+
+hojaInforme["!cols"] = [
+
+{wch:35},
+{wch:18},
 {wch:20},
 {wch:20},
 {wch:18},
@@ -1598,10 +1960,11 @@ hojaInforme["!cols"]=[
 {wch:18},
 {wch:18},
 {wch:18}
+
 ];
 
 
-const libro=
+const libro =
 XLSX.utils.book_new();
 
 
@@ -1621,70 +1984,129 @@ hojaInforme,
 
 XLSX.writeFile(
 libro,
-`Mi-Presion-${new Date().toISOString().slice(0,10)}.xlsx`
+`Mi-Presion-${new Date()
+.toISOString()
+.slice(0,10)}.xlsx`
 );
 
 }
 
 
 /* =====================================================
-   BOTONES HISTORIAL / INFORME
-   SOLO UNO ABIERTO A LA VEZ
+   HISTORIAL / INFORME
+   SOLO UNO PUEDE ESTAR ABIERTO
 ===================================================== */
 
-document.getElementById("btnHistorial")
-.addEventListener("click", function(){
+const btnHistorial =
+document.getElementById(
+"btnHistorial"
+);
 
-  const historial =
-    document.getElementById("panelHistorial");
+const btnInformes =
+document.getElementById(
+"btnInformes"
+);
 
-  const informe =
-    document.getElementById("panelInformes");
+const panelHistorial =
+document.getElementById(
+"panelHistorial"
+);
 
-  const historialAbierto =
-    historial.style.display === "block";
-
-  /* Siempre cerramos Informe */
-  informe.style.display = "none";
-
-  /* Historial alterna abierto/cerrado */
-  historial.style.display =
-    historialAbierto ? "none" : "block";
-
-});
-
-
-document.getElementById("btnInformes")
-.addEventListener("click", function(){
-
-  const historial =
-    document.getElementById("panelHistorial");
-
-  const informe =
-    document.getElementById("panelInformes");
-
-  const informeAbierto =
-    informe.style.display === "block";
-
-  /* Siempre cerramos Historial */
-  historial.style.display = "none";
-
-  /* Informe alterna abierto/cerrado */
-  informe.style.display =
-    informeAbierto ? "none" : "block";
-
-});
+const panelInformes =
+document.getElementById(
+"panelInformes"
+);
 
 
-/* UTILIDADES */
+/* HISTORIAL */
+
+btnHistorial.onclick =
+function(){
+
+const estabaAbierto =
+panelHistorial.style.display === "block";
+
+
+/* Cerramos los dos */
+
+panelHistorial.style.display =
+"none";
+
+panelInformes.style.display =
+"none";
+
+
+/*
+Si Historial estaba cerrado,
+abrimos únicamente Historial.
+*/
+
+if(
+!estabaAbierto
+){
+
+panelHistorial.style.display =
+"block";
+
+}
+
+};
+
+
+/* INFORME */
+
+btnInformes.onclick =
+function(){
+
+const estabaAbierto =
+panelInformes.style.display === "block";
+
+
+/* Cerramos los dos */
+
+panelHistorial.style.display =
+"none";
+
+panelInformes.style.display =
+"none";
+
+
+/*
+Si Informe estaba cerrado,
+abrimos únicamente Informe.
+*/
+
+if(
+!estabaAbierto
+){
+
+panelInformes.style.display =
+"block";
+
+}
+
+};
+
+
+/* =====================================================
+   UTILIDADES
+===================================================== */
 
 function formatearFecha(f){
 
-if(!f)return "";
+if(!f)
+return "";
 
-const p=f.split("-");
 
-if(p.length!==3)return f;
+const p =
+f.split("-");
+
+
+if(
+p.length !== 3
+)
+return f;
+
 
 return `${p[2]}/${p[1]}/${p[0]}`;
 
@@ -1693,17 +2115,24 @@ return `${p[2]}/${p[1]}/${p[0]}`;
 
 function escaparHTML(texto){
 
-const div=
-document.createElement("div");
+const div =
+document.createElement(
+"div"
+);
 
-div.textContent=texto||"";
+
+div.textContent =
+texto || "";
+
 
 return div.innerHTML;
 
 }
 
 
-/* INICIO */
+/* =====================================================
+   INICIO
+===================================================== */
 
 async function iniciar(){
 
@@ -1719,9 +2148,10 @@ await cargarMediciones();
 
 console.error(error);
 
+
 document.getElementById(
 "ultimaMedicion"
-).innerHTML=
+).innerHTML =
 "No se pudieron cargar las mediciones.";
 
 }
