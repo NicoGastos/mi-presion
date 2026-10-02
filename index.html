@@ -1627,36 +1627,51 @@ libro,
 }
 
 
-/* BOTONES */
+/* =====================================================
+   BOTONES HISTORIAL / INFORME
+   SOLO UNO ABIERTO A LA VEZ
+===================================================== */
 
 document.getElementById("btnHistorial")
-.addEventListener("click",function(){
+.addEventListener("click", function(){
 
-const p=
-document.getElementById("panelHistorial");
+  const historial =
+    document.getElementById("panelHistorial");
 
-p.style.display=
-p.style.display==="block"
-?
-"none"
-:
-"block";
+  const informe =
+    document.getElementById("panelInformes");
+
+  const historialAbierto =
+    historial.style.display === "block";
+
+  /* Siempre cerramos Informe */
+  informe.style.display = "none";
+
+  /* Historial alterna abierto/cerrado */
+  historial.style.display =
+    historialAbierto ? "none" : "block";
 
 });
 
 
 document.getElementById("btnInformes")
-.addEventListener("click",function(){
+.addEventListener("click", function(){
 
-const p=
-document.getElementById("panelInformes");
+  const historial =
+    document.getElementById("panelHistorial");
 
-p.style.display=
-p.style.display==="block"
-?
-"none"
-:
-"block";
+  const informe =
+    document.getElementById("panelInformes");
+
+  const informeAbierto =
+    informe.style.display === "block";
+
+  /* Siempre cerramos Historial */
+  historial.style.display = "none";
+
+  /* Informe alterna abierto/cerrado */
+  informe.style.display =
+    informeAbierto ? "none" : "block";
 
 });
 
