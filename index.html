@@ -48,27 +48,29 @@
 
     label {
       display: block;
-      margin-top: 14px;
-      margin-bottom: 5px;
+      margin-top: 16px;
+      margin-bottom: 6px;
       font-weight: bold;
     }
 
     input, textarea {
+      display: block;
       width: 100%;
       padding: 12px;
       font-size: 17px;
       border: 1px solid #d1d5db;
       border-radius: 10px;
+      background: white;
     }
 
     textarea {
+      min-height: 80px;
       resize: vertical;
-      min-height: 70px;
     }
 
     button {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 18px;
       padding: 14px;
       border: none;
       border-radius: 10px;
@@ -107,15 +109,52 @@
       color: #4b5563;
     }
 
+    .sin-mediciones {
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .zona-foto {
+      padding: 15px;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .zona-foto p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    #fotoInput {
+      display: none;
+    }
+
+    #vistaFoto {
+      display: none;
+      width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      margin-top: 15px;
+      border-radius: 12px;
+    }
+
+    #mensajeFoto {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1e40af;
+      font-size: 14px;
+    }
+
     .botones {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-    }
-
-    .sin-mediciones {
-      color: #6b7280;
-      text-align: center;
     }
 
     .panel {
@@ -125,10 +164,6 @@
     .registro {
       padding: 15px 0;
       border-bottom: 1px solid #e5e7eb;
-    }
-
-    .registro:last-child {
-      border-bottom: none;
     }
 
     .registro-presion {
@@ -150,30 +185,23 @@
 
     .estado {
       text-align: center;
-      font-size: 14px;
-      color: #6b7280;
       margin-top: 10px;
+      font-size: 14px;
     }
 
-    .ok {
-      color: #15803d;
-    }
-
-    .error {
-      color: #b91c1c;
-    }
+    .ok { color: #15803d; }
+    .error { color: #b91c1c; }
 
     .resumen {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 10px;
     }
 
     .dato-resumen {
       background: #f9fafb;
-      border-radius: 10px;
       padding: 12px;
+      border-radius: 10px;
       text-align: center;
     }
 
@@ -181,55 +209,6 @@
       display: block;
       font-size: 20px;
       color: #b91c1c;
-    }
-
-    .zona-foto {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f8fafc;
-      border: 2px dashed #cbd5e1;
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    .zona-foto p {
-      color: #64748b;
-      margin: 5px 0 10px 0;
-      font-size: 14px;
-    }
-
-    #fotoInput {
-      display: none;
-    }
-
-    #vistaFoto {
-      display: none;
-      width: 100%;
-      max-height: 350px;
-      object-fit: contain;
-      margin-top: 15px;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-    }
-
-    .mensaje-foto {
-      display: none;
-      margin-top: 12px;
-      padding: 10px;
-      background: #eff6ff;
-      border-radius: 8px;
-      color: #1e40af;
-      font-size: 14px;
-    }
-
-    @media (max-width: 450px) {
-      .contenedor {
-        padding: 15px;
-      }
-
-      .presion {
-        font-size: 38px;
-      }
     }
   </style>
 </head>
@@ -244,7 +223,6 @@
   </div>
 
   <div class="tarjeta ultima">
-
     <h2>Última medición</h2>
 
     <div id="ultimaMedicion">
@@ -252,7 +230,6 @@
         Cargando mediciones...
       </div>
     </div>
-
   </div>
 
 
@@ -260,6 +237,7 @@
 
     <h2>Nueva medición</h2>
 
+    <!-- FOTO -->
     <div class="zona-foto">
 
       <strong>📸 Foto del tensiómetro</strong>
@@ -288,52 +266,82 @@
         alt="Foto del tensiómetro"
       >
 
-      <div
-        id="mensajeFoto"
-        class="mensaje-foto"
-      >
-        ✓ Foto seleccionada. Revisá los valores antes de guardar.
+      <div id="mensajeFoto">
+        ✓ Foto seleccionada. Completá o revisá los valores.
       </div>
 
     </div>
 
 
-    <label>Fecha</label>
+    <!-- FECHA -->
+    <label for="fecha">📅 Fecha</label>
     <input type="date" id="fecha">
 
-    <label>Hora</label>
+
+    <!-- HORA -->
+    <label for="hora">🕐 Hora</label>
     <input type="time" id="hora">
 
-    <label>Presión sistólica (máxima)</label>
+
+    <!-- SISTÓLICA -->
+    <label for="sistolica">
+      Presión sistólica (máxima)
+    </label>
+
     <input
       type="number"
       id="sistolica"
+      inputmode="numeric"
       placeholder="Ej: 120"
+      min="50"
+      max="300"
     >
 
-    <label>Presión diastólica (mínima)</label>
+
+    <!-- DIASTÓLICA -->
+    <label for="diastolica">
+      Presión diastólica (mínima)
+    </label>
+
     <input
       type="number"
       id="diastolica"
+      inputmode="numeric"
       placeholder="Ej: 80"
+      min="30"
+      max="200"
     >
 
-    <label>Pulso</label>
+
+    <!-- PULSO -->
+    <label for="pulso">
+      ❤️ Pulso
+    </label>
+
     <input
       type="number"
       id="pulso"
+      inputmode="numeric"
       placeholder="Ej: 70"
+      min="30"
+      max="220"
     >
 
-    <label>Observación</label>
+
+    <!-- OBSERVACIÓN -->
+    <label for="observacion">
+      📝 Observación
+    </label>
 
     <textarea
       id="observacion"
       placeholder="Ej: 5 minutos de reposo, recién levantado..."
     ></textarea>
 
+
+    <!-- GUARDAR -->
     <button id="btnGuardar">
-      Guardar medición
+      💾 Guardar medición
     </button>
 
     <div id="estado" class="estado"></div>
@@ -406,33 +414,16 @@ from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 // ====================================================
 
 const firebaseConfig = {
-
-  apiKey:
-    "AIzaSyDwES-u2Jm3zyhW_LqXCbLW-aoII38wjPU",
-
-  authDomain:
-    "mi-presion-4286e.firebaseapp.com",
-
-  projectId:
-    "mi-presion-4286e",
-
-  storageBucket:
-    "mi-presion-4286e.firebasestorage.app",
-
-  messagingSenderId:
-    "869630737307",
-
-  appId:
-    "1:869630737307:web:2aa3818c3475809450ff3e"
-
+  apiKey: "AIzaSyDwES-u2Jm3zyhW_LqXCbLW-aoII38wjPU",
+  authDomain: "mi-presion-4286e.firebaseapp.com",
+  projectId: "mi-presion-4286e",
+  storageBucket: "mi-presion-4286e.firebasestorage.app",
+  messagingSenderId: "869630737307",
+  appId: "1:869630737307:web:2aa3818c3475809450ff3e"
 };
 
-
-const app =
-  initializeApp(firebaseConfig);
-
-const db =
-  getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const medicionesRef =
   collection(db, "mediciones");
@@ -441,7 +432,7 @@ let mediciones = [];
 
 
 // ====================================================
-// FECHA Y HORA
+// FECHA / HORA
 // ====================================================
 
 function completarFechaHora() {
@@ -462,6 +453,7 @@ function completarFechaHora() {
 
   const minutos =
     String(ahora.getMinutes()).padStart(2, "0");
+
 
   document.getElementById("fecha").value =
     `${anio}-${mes}-${dia}`;
@@ -492,17 +484,15 @@ const mensajeFoto =
 
 btnFoto.addEventListener(
   "click",
-  () => {
-
+  function () {
     fotoInput.click();
-
   }
 );
 
 
 fotoInput.addEventListener(
   "change",
-  () => {
+  function () {
 
     const archivo =
       fotoInput.files[0];
@@ -511,11 +501,10 @@ fotoInput.addEventListener(
       return;
     }
 
+
     if (!archivo.type.startsWith("image/")) {
 
-      alert(
-        "Seleccioná una imagen válida."
-      );
+      alert("Seleccioná una imagen válida.");
 
       fotoInput.value = "";
 
@@ -528,7 +517,7 @@ fotoInput.addEventListener(
 
 
     lector.onload =
-      (evento) => {
+      function (evento) {
 
         vistaFoto.src =
           evento.target.result;
@@ -542,16 +531,14 @@ fotoInput.addEventListener(
       };
 
 
-    lector.readAsDataURL(
-      archivo
-    );
+    lector.readAsDataURL(archivo);
 
   }
 );
 
 
 // ====================================================
-// HISTORIAL INICIAL
+// HISTÓRICAS
 // ====================================================
 
 const historicas = [
@@ -596,16 +583,16 @@ const historicas = [
   ["2026-09-30","06:50",137,84,61,"Registro histórico"],
 
   ["2026-10-01","19:51",119,70,69,
-   "Pulso 69 probable según fotografía."],
+    "Pulso 69 probable según fotografía."],
 
   ["2026-10-02","07:34",112,67,63,
-   "Levantado 06:30. 5 minutos de reposo."]
+    "Levantado 06:30. 5 minutos de reposo."]
 
 ];
 
 
 // ====================================================
-// IMPORTAR HISTÓRICAS SIN DUPLICADOS
+// IMPORTAR HISTÓRICAS SIN DUPLICAR
 // ====================================================
 
 async function cargarHistoricasSiHaceFalta() {
@@ -636,6 +623,7 @@ async function cargarHistoricasSiHaceFalta() {
 
     const clave =
       `${m[0]}|${m[1]}|${m[2]}|${m[3]}`;
+
 
     if (existentes.has(clave)) {
       continue;
@@ -733,7 +721,7 @@ async function cargarMediciones() {
 
 
 // ====================================================
-// ÚLTIMA MEDICIÓN
+// ÚLTIMA
 // ====================================================
 
 function mostrarUltima() {
@@ -799,7 +787,7 @@ function mostrarUltima() {
 
 
 // ====================================================
-// GUARDAR MEDICIÓN
+// GUARDAR
 // ====================================================
 
 async function guardarMedicion() {
@@ -840,7 +828,7 @@ async function guardarMedicion() {
   ) {
 
     alert(
-      "Completá fecha, hora, presión y pulso."
+      "Completá fecha, hora, sistólica, diastólica y pulso."
     );
 
     return;
@@ -867,14 +855,10 @@ async function guardarMedicion() {
 
 
   const boton =
-    document.getElementById(
-      "btnGuardar"
-    );
+    document.getElementById("btnGuardar");
 
   const estado =
-    document.getElementById(
-      "estado"
-    );
+    document.getElementById("estado");
 
 
   boton.disabled = true;
@@ -893,8 +877,11 @@ async function guardarMedicion() {
         diastolica,
         pulso,
         observacion,
+
         historica: false,
-        creadoEn: serverTimestamp()
+
+        creadoEn:
+          serverTimestamp()
 
       }
     );
@@ -967,7 +954,7 @@ async function guardarMedicion() {
     boton.disabled = false;
 
     boton.textContent =
-      "Guardar medición";
+      "💾 Guardar medición";
 
   }
 
@@ -1055,16 +1042,6 @@ function generarInforme() {
     );
 
 
-  if (mediciones.length === 0) {
-
-    contenedor.innerHTML =
-      "Sin datos.";
-
-    return;
-
-  }
-
-
   const validas =
     mediciones.filter(
       m =>
@@ -1076,7 +1053,7 @@ function generarInforme() {
   if (validas.length === 0) {
 
     contenedor.innerHTML =
-      "Sin datos suficientes.";
+      "Sin datos.";
 
     return;
 
@@ -1123,7 +1100,7 @@ function generarInforme() {
     "-";
 
 
-  const sistolicaMaxima =
+  const maxima =
     Math.max(
       ...validas.map(
         m => Number(m.sistolica)
@@ -1131,7 +1108,7 @@ function generarInforme() {
     );
 
 
-  const sistolicaMinima =
+  const minima =
     Math.min(
       ...validas.map(
         m => Number(m.sistolica)
@@ -1151,23 +1128,17 @@ function generarInforme() {
       </div>
 
       <div class="dato-resumen">
-        <strong>
-          ${promedioPulso}
-        </strong>
+        <strong>${promedioPulso}</strong>
         Pulso promedio
       </div>
 
       <div class="dato-resumen">
-        <strong>
-          ${sistolicaMaxima}
-        </strong>
+        <strong>${maxima}</strong>
         Sistólica máxima
       </div>
 
       <div class="dato-resumen">
-        <strong>
-          ${sistolicaMinima}
-        </strong>
+        <strong>${minima}</strong>
         Sistólica mínima
       </div>
 
@@ -1187,7 +1158,7 @@ function generarInforme() {
 
 
 // ====================================================
-// FORMATO FECHA
+// FECHA
 // ====================================================
 
 function formatearFecha(fecha) {
@@ -1230,7 +1201,7 @@ document.getElementById(
   "btnHistorial"
 ).addEventListener(
   "click",
-  () => {
+  function () {
 
     const panel =
       document.getElementById(
@@ -1250,7 +1221,7 @@ document.getElementById(
   "btnInformes"
 ).addEventListener(
   "click",
-  () => {
+  function () {
 
     const panel =
       document.getElementById(
