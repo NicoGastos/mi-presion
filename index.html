@@ -82,6 +82,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
     .ultima {
       text-align: center;
     }
@@ -112,6 +117,81 @@
       color: #6b7280;
       text-align: center;
     }
+
+    .historial {
+      display: none;
+    }
+
+    .registro {
+      padding: 15px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .registro:last-child {
+      border-bottom: none;
+    }
+
+    .registro-presion {
+      font-size: 22px;
+      font-weight: bold;
+      color: #b91c1c;
+    }
+
+    .registro-datos {
+      margin-top: 5px;
+      color: #4b5563;
+    }
+
+    .registro-observacion {
+      margin-top: 6px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .estado {
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 10px;
+    }
+
+    .ok {
+      color: #15803d;
+    }
+
+    .error {
+      color: #b91c1c;
+    }
+
+    .resumen {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .dato-resumen {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .dato-resumen strong {
+      display: block;
+      font-size: 20px;
+      color: #b91c1c;
+    }
+
+    @media (max-width: 450px) {
+      .contenedor {
+        padding: 15px;
+      }
+
+      .presion {
+        font-size: 38px;
+      }
+    }
   </style>
 </head>
 
@@ -120,17 +200,20 @@
 <div class="contenedor">
 
   <h1>❤️ Mi Presión</h1>
-  <div class="subtitulo">Registro personal de presión arterial</div>
+  <div class="subtitulo">
+    Registro personal de presión arterial
+  </div>
 
   <div class="tarjeta ultima">
     <h2>Última medición</h2>
 
     <div id="ultimaMedicion">
       <div class="sin-mediciones">
-        Todavía no hay mediciones registradas.
+        Cargando mediciones...
       </div>
     </div>
   </div>
+
 
   <div class="tarjeta">
 
@@ -143,93 +226,1157 @@
     <input type="time" id="hora">
 
     <label>Presión sistólica (máxima)</label>
-    <input type="number" id="sistolica" placeholder="Ej: 120">
+    <input
+      type="number"
+      id="sistolica"
+      placeholder="Ej: 120"
+      min="50"
+      max="300"
+    >
 
     <label>Presión diastólica (mínima)</label>
-    <input type="number" id="diastolica" placeholder="Ej: 80">
+    <input
+      type="number"
+      id="diastolica"
+      placeholder="Ej: 80"
+      min="30"
+      max="200"
+    >
 
     <label>Pulso</label>
-    <input type="number" id="pulso" placeholder="Ej: 70">
+    <input
+      type="number"
+      id="pulso"
+      placeholder="Ej: 70"
+      min="30"
+      max="220"
+    >
 
     <label>Observación</label>
-    <textarea id="observacion"
-      placeholder="Ej: 5 minutos de reposo, recién levantado..."></textarea>
 
-    <button onclick="guardarMedicion()">
+    <textarea
+      id="observacion"
+      placeholder="Ej: 5 minutos de reposo, recién levantado..."
+    ></textarea>
+
+    <button id="btnGuardar">
       Guardar medición
     </button>
 
+    <div id="estado" class="estado"></div>
+
   </div>
+
 
   <div class="tarjeta">
 
     <h2>Mis registros</h2>
 
     <div class="botones">
-      <button class="secundario">📋 Historial</button>
-      <button class="secundario">📊 Informes</button>
+
+      <button
+        id="btnHistorial"
+        class="secundario"
+      >
+        📋 Historial
+      </button>
+
+      <button
+        id="btnInformes"
+        class="secundario"
+      >
+        📊 Informes
+      </button>
+
     </div>
+
+  </div>
+
+
+  <div
+    id="panelHistorial"
+    class="tarjeta historial"
+  >
+
+    <h2>📋 Historial</h2>
+
+    <div id="listaHistorial"></div>
+
+  </div>
+
+
+  <div
+    id="panelInformes"
+    class="tarjeta historial"
+  >
+
+    <h2>📊 Resumen</h2>
+
+    <div id="contenidoInforme"></div>
 
   </div>
 
 </div>
 
-<script>
 
-  const ahora = new Date();
+<script type="module">
 
-  document.getElementById("fecha").value =
-    ahora.toISOString().split("T")[0];
+  import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 
-  document.getElementById("hora").value =
-    ahora.toTimeString().slice(0,5);
-
-
-  function guardarMedicion() {
-
-    const sistolica =
-      document.getElementById("sistolica").value;
-
-    const diastolica =
-      document.getElementById("diastolica").value;
-
-    const pulso =
-      document.getElementById("pulso").value;
-
-    const fecha =
-      document.getElementById("fecha").value;
-
-    const hora =
-      document.getElementById("hora").value;
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    orderBy,
+    serverTimestamp
+  }
+  from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 
-    if (!sistolica || !diastolica || !pulso) {
+  // ==========================================
+  // FIREBASE
+  // ==========================================
 
-      alert("Completá presión y pulso.");
+  const firebaseConfig = {
+
+    apiKey:
+      "AIzaSyDwES-u2Jm3zyhW_LqXCbLW-aoII38wjPU",
+
+    authDomain:
+      "mi-presion-4286e.firebaseapp.com",
+
+    projectId:
+      "mi-presion-4286e",
+
+    storageBucket:
+      "mi-presion-4286e.firebasestorage.app",
+
+    messagingSenderId:
+      "869630737307",
+
+    appId:
+      "1:869630737307:web:2aa3818c3475809450ff3e"
+
+  };
+
+
+  const app = initializeApp(firebaseConfig);
+
+  const db = getFirestore(app);
+
+  const medicionesRef =
+    collection(db, "mediciones");
+
+
+  let mediciones = [];
+
+
+  // ==========================================
+  // FECHA Y HORA ACTUAL
+  // ==========================================
+
+  function completarFechaHora() {
+
+    const ahora = new Date();
+
+    const anio = ahora.getFullYear();
+
+    const mes =
+      String(ahora.getMonth() + 1).padStart(2, "0");
+
+    const dia =
+      String(ahora.getDate()).padStart(2, "0");
+
+    const horas =
+      String(ahora.getHours()).padStart(2, "0");
+
+    const minutos =
+      String(ahora.getMinutes()).padStart(2, "0");
+
+
+    document.getElementById("fecha").value =
+      `${anio}-${mes}-${dia}`;
+
+    document.getElementById("hora").value =
+      `${horas}:${minutos}`;
+
+  }
+
+
+  completarFechaHora();
+
+
+  // ==========================================
+  // MEDICIONES HISTÓRICAS
+  // ==========================================
+
+  const historicas = [
+
+    {
+      fecha: "2026-09-17",
+      hora: "06:50",
+      sistolica: 170,
+      diastolica: 110,
+      pulso: null,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-17",
+      hora: "18:31",
+      sistolica: 169,
+      diastolica: 86,
+      pulso: 75,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-17",
+      hora: "18:40",
+      sistolica: 155,
+      diastolica: 84,
+      pulso: 69,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-17",
+      hora: "19:32",
+      sistolica: 158,
+      diastolica: 93,
+      pulso: 71,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-18",
+      hora: "00:20",
+      sistolica: 165,
+      diastolica: 98,
+      pulso: 74,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-18",
+      hora: "06:43",
+      sistolica: 205,
+      diastolica: 111,
+      pulso: 71,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-18",
+      hora: "11:47",
+      sistolica: 182,
+      diastolica: 99,
+      pulso: 70,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-18",
+      hora: "11:52",
+      sistolica: 161,
+      diastolica: 98,
+      pulso: 72,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-21",
+      hora: "21:16",
+      sistolica: 141,
+      diastolica: 83,
+      pulso: 75,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-21",
+      hora: "22:57",
+      sistolica: 129,
+      diastolica: 78,
+      pulso: 75,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-22",
+      hora: "06:51",
+      sistolica: 158,
+      diastolica: 90,
+      pulso: 58,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-23",
+      hora: "07:17",
+      sistolica: 145,
+      diastolica: 88,
+      pulso: 62,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-23",
+      hora: "11:17",
+      sistolica: 131,
+      diastolica: 90,
+      pulso: 68,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-23",
+      hora: "23:23",
+      sistolica: 127,
+      diastolica: 78,
+      pulso: 69,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-24",
+      hora: "07:36",
+      sistolica: 132,
+      diastolica: 94,
+      pulso: 64,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-25",
+      hora: "02:32",
+      sistolica: 112,
+      diastolica: 73,
+      pulso: 85,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-25",
+      hora: "06:40",
+      sistolica: 124,
+      diastolica: 81,
+      pulso: 70,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-25",
+      hora: "12:51",
+      sistolica: 122,
+      diastolica: 68,
+      pulso: 68,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-25",
+      hora: "15:13",
+      sistolica: 112,
+      diastolica: 62,
+      pulso: 72,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-26",
+      hora: "00:47",
+      sistolica: 118,
+      diastolica: 76,
+      pulso: 68,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-27",
+      hora: "23:44",
+      sistolica: 127,
+      diastolica: 81,
+      pulso: 71,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-28",
+      hora: "07:12",
+      sistolica: 140,
+      diastolica: 77,
+      pulso: 59,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-28",
+      hora: "23:26",
+      sistolica: 137,
+      diastolica: 80,
+      pulso: 63,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-29",
+      hora: "01:01",
+      sistolica: 124,
+      diastolica: 82,
+      pulso: 62,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-29",
+      hora: "07:35",
+      sistolica: 132,
+      diastolica: 85,
+      pulso: 65,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-29",
+      hora: "22:24",
+      sistolica: 125,
+      diastolica: 75,
+      pulso: 74,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-09-30",
+      hora: "06:50",
+      sistolica: 137,
+      diastolica: 84,
+      pulso: 61,
+      observacion: "Registro histórico"
+    },
+
+    {
+      fecha: "2026-10-01",
+      hora: "19:51",
+      sistolica: 119,
+      diastolica: 70,
+      pulso: 69,
+      observacion:
+        "Pulso 69 probable según fotografía."
+    },
+
+    {
+      fecha: "2026-10-02",
+      hora: "07:34",
+      sistolica: 112,
+      diastolica: 67,
+      pulso: 63,
+      observacion:
+        "Levantado 06:30. 5 minutos de reposo."
+    }
+
+  ];
+
+
+  // ==========================================
+  // CARGAR HISTÓRICAS SOLO UNA VEZ
+  // ==========================================
+
+  async function cargarHistoricasSiHaceFalta() {
+
+    try {
+
+      const snapshot =
+        await getDocs(medicionesRef);
+
+
+      if (!snapshot.empty) {
+
+        return;
+
+      }
+
+
+      for (const m of historicas) {
+
+        await addDoc(medicionesRef, {
+
+          ...m,
+
+          historica: true,
+
+          creadoEn: serverTimestamp()
+
+        });
+
+      }
+
+
+      console.log(
+        "Historial inicial cargado correctamente."
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error cargando historial inicial:",
+        error
+      );
+
+    }
+
+  }
+
+
+  // ==========================================
+  // LEER FIRESTORE
+  // ==========================================
+
+  async function cargarMediciones() {
+
+    try {
+
+      const q = query(
+        medicionesRef,
+        orderBy("fecha", "desc"),
+        orderBy("hora", "desc")
+      );
+
+
+      const snapshot =
+        await getDocs(q);
+
+
+      mediciones = [];
+
+
+      snapshot.forEach((doc) => {
+
+        mediciones.push({
+
+          id: doc.id,
+
+          ...doc.data()
+
+        });
+
+      });
+
+
+      mostrarUltima();
+
+      mostrarHistorial();
+
+      generarInforme();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      document.getElementById(
+        "ultimaMedicion"
+      ).innerHTML = `
+
+        <div class="sin-mediciones">
+          No se pudieron cargar las mediciones.
+        </div>
+
+      `;
+
+    }
+
+  }
+
+
+  // ==========================================
+  // ÚLTIMA MEDICIÓN
+  // ==========================================
+
+  function mostrarUltima() {
+
+    const contenedor =
+      document.getElementById(
+        "ultimaMedicion"
+      );
+
+
+    if (mediciones.length === 0) {
+
+      contenedor.innerHTML = `
+
+        <div class="sin-mediciones">
+          Todavía no hay mediciones registradas.
+        </div>
+
+      `;
 
       return;
+
     }
 
 
-    document.getElementById("ultimaMedicion").innerHTML = `
+    const m = mediciones[0];
+
+
+    contenedor.innerHTML = `
 
       <div class="presion">
-        ${sistolica} / ${diastolica}
+
+        ${m.sistolica} / ${m.diastolica}
+
       </div>
 
       <div class="pulso">
-        ❤️ Pulso: ${pulso} lpm
+
+        ❤️ Pulso:
+        ${m.pulso ?? "-"} lpm
+
       </div>
 
-      <div style="margin-top:10px;color:#6b7280">
-        ${fecha} - ${hora}
+      <div
+        style="
+          margin-top:10px;
+          color:#6b7280
+        "
+      >
+
+        ${formatearFecha(m.fecha)}
+        -
+        ${m.hora}
+
+      </div>
+
+      ${
+        m.observacion
+        ?
+        `
+          <div
+            style="
+              margin-top:10px;
+              color:#6b7280;
+              font-size:14px
+            "
+          >
+            ${m.observacion}
+          </div>
+        `
+        :
+        ""
+      }
+
+    `;
+
+  }
+
+
+  // ==========================================
+  // GUARDAR NUEVA MEDICIÓN
+  // ==========================================
+
+  async function guardarMedicion() {
+
+    const sistolica =
+      Number(
+        document.getElementById(
+          "sistolica"
+        ).value
+      );
+
+    const diastolica =
+      Number(
+        document.getElementById(
+          "diastolica"
+        ).value
+      );
+
+    const pulso =
+      Number(
+        document.getElementById(
+          "pulso"
+        ).value
+      );
+
+    const fecha =
+      document.getElementById(
+        "fecha"
+      ).value;
+
+    const hora =
+      document.getElementById(
+        "hora"
+      ).value;
+
+    const observacion =
+      document.getElementById(
+        "observacion"
+      ).value.trim();
+
+
+    if (
+      !fecha ||
+      !hora ||
+      !sistolica ||
+      !diastolica ||
+      !pulso
+    ) {
+
+      alert(
+        "Completá fecha, hora, presión y pulso."
+      );
+
+      return;
+
+    }
+
+
+    if (
+      sistolica < 50 ||
+      sistolica > 300 ||
+      diastolica < 30 ||
+      diastolica > 200 ||
+      pulso < 30 ||
+      pulso > 220
+    ) {
+
+      alert(
+        "Revisá los valores ingresados."
+      );
+
+      return;
+
+    }
+
+
+    const boton =
+      document.getElementById(
+        "btnGuardar"
+      );
+
+    const estado =
+      document.getElementById(
+        "estado"
+      );
+
+
+    boton.disabled = true;
+
+    boton.textContent =
+      "Guardando...";
+
+
+    try {
+
+      await addDoc(
+        medicionesRef,
+        {
+
+          fecha,
+
+          hora,
+
+          sistolica,
+
+          diastolica,
+
+          pulso,
+
+          observacion,
+
+          historica: false,
+
+          creadoEn:
+            serverTimestamp()
+
+        }
+      );
+
+
+      estado.textContent =
+        "✓ Medición guardada en Firebase";
+
+      estado.className =
+        "estado ok";
+
+
+      document.getElementById(
+        "sistolica"
+      ).value = "";
+
+      document.getElementById(
+        "diastolica"
+      ).value = "";
+
+      document.getElementById(
+        "pulso"
+      ).value = "";
+
+      document.getElementById(
+        "observacion"
+      ).value = "";
+
+
+      completarFechaHora();
+
+
+      await cargarMediciones();
+
+
+      alert(
+        "Medición cargada correctamente."
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      estado.textContent =
+        "Error al guardar la medición.";
+
+      estado.className =
+        "estado error";
+
+
+      alert(
+        "No se pudo guardar. Revisaremos la configuración de Firebase."
+      );
+
+    } finally {
+
+      boton.disabled = false;
+
+      boton.textContent =
+        "Guardar medición";
+
+    }
+
+  }
+
+
+  // ==========================================
+  // HISTORIAL
+  // ==========================================
+
+  function mostrarHistorial() {
+
+    const lista =
+      document.getElementById(
+        "listaHistorial"
+      );
+
+
+    if (mediciones.length === 0) {
+
+      lista.innerHTML =
+        '<div class="sin-mediciones">Sin registros.</div>';
+
+      return;
+
+    }
+
+
+    lista.innerHTML =
+      mediciones.map(m => `
+
+        <div class="registro">
+
+          <div class="registro-presion">
+
+            ${m.sistolica} /
+            ${m.diastolica} mmHg
+
+          </div>
+
+          <div class="registro-datos">
+
+            📅 ${formatearFecha(m.fecha)}
+            &nbsp;
+            🕐 ${m.hora}
+
+          </div>
+
+          <div class="registro-datos">
+
+            ❤️ Pulso:
+            ${m.pulso ?? "-"} lpm
+
+          </div>
+
+          ${
+            m.observacion
+            ?
+            `
+              <div
+                class="registro-observacion"
+              >
+                ${m.observacion}
+              </div>
+            `
+            :
+            ""
+          }
+
+        </div>
+
+      `).join("");
+
+  }
+
+
+  // ==========================================
+  // INFORME SIMPLE
+  // ==========================================
+
+  function generarInforme() {
+
+    const contenedor =
+      document.getElementById(
+        "contenidoInforme"
+      );
+
+
+    if (mediciones.length === 0) {
+
+      contenedor.innerHTML =
+        '<div class="sin-mediciones">Sin datos suficientes.</div>';
+
+      return;
+
+    }
+
+
+    const validas =
+      mediciones.filter(
+        m =>
+          Number(m.sistolica) &&
+          Number(m.diastolica)
+      );
+
+
+    const promedioSistolica =
+      Math.round(
+        validas.reduce(
+          (total, m) =>
+            total + Number(m.sistolica),
+          0
+        ) / validas.length
+      );
+
+
+    const promedioDiastolica =
+      Math.round(
+        validas.reduce(
+          (total, m) =>
+            total + Number(m.diastolica),
+          0
+        ) / validas.length
+      );
+
+
+    const conPulso =
+      validas.filter(
+        m => Number(m.pulso)
+      );
+
+
+    const promedioPulso =
+      conPulso.length
+      ?
+      Math.round(
+        conPulso.reduce(
+          (total, m) =>
+            total + Number(m.pulso),
+          0
+        ) / conPulso.length
+      )
+      :
+      "-";
+
+
+    const maxima =
+      Math.max(
+        ...validas.map(
+          m => Number(m.sistolica)
+        )
+      );
+
+
+    const minima =
+      Math.min(
+        ...validas.map(
+          m => Number(m.sistolica)
+        )
+      );
+
+
+    contenedor.innerHTML = `
+
+      <div class="resumen">
+
+        <div class="dato-resumen">
+
+          <strong>
+            ${promedioSistolica}/${promedioDiastolica}
+          </strong>
+
+          Promedio
+
+        </div>
+
+        <div class="dato-resumen">
+
+          <strong>
+            ${promedioPulso}
+          </strong>
+
+          Pulso promedio
+
+        </div>
+
+        <div class="dato-resumen">
+
+          <strong>
+            ${maxima}
+          </strong>
+
+          Sistólica máxima
+
+        </div>
+
+        <div class="dato-resumen">
+
+          <strong>
+            ${minima}
+          </strong>
+
+          Sistólica mínima
+
+        </div>
+
+      </div>
+
+      <div
+        style="
+          margin-top:15px;
+          color:#6b7280;
+          text-align:center
+        "
+      >
+
+        ${validas.length}
+        mediciones registradas
+
       </div>
 
     `;
 
-    alert("Medición cargada correctamente.");
+  }
+
+
+  // ==========================================
+  // FORMATO FECHA
+  // ==========================================
+
+  function formatearFecha(fecha) {
+
+    if (!fecha) {
+      return "";
+    }
+
+
+    const partes =
+      fecha.split("-");
+
+
+    if (partes.length !== 3) {
+      return fecha;
+    }
+
+
+    return (
+      partes[2] +
+      "/" +
+      partes[1] +
+      "/" +
+      partes[0]
+    );
 
   }
+
+
+  // ==========================================
+  // BOTONES
+  // ==========================================
+
+  document.getElementById(
+    "btnGuardar"
+  ).addEventListener(
+    "click",
+    guardarMedicion
+  );
+
+
+  document.getElementById(
+    "btnHistorial"
+  ).addEventListener(
+    "click",
+    () => {
+
+      const panel =
+        document.getElementById(
+          "panelHistorial"
+        );
+
+      panel.style.display =
+        panel.style.display === "block"
+        ? "none"
+        : "block";
+
+    }
+  );
+
+
+  document.getElementById(
+    "btnInformes"
+  ).addEventListener(
+    "click",
+    () => {
+
+      const panel =
+        document.getElementById(
+          "panelInformes"
+        );
+
+      panel.style.display =
+        panel.style.display === "block"
+        ? "none"
+        : "block";
+
+    }
+  );
+
+
+  // ==========================================
+  // INICIO
+  // ==========================================
+
+  async function iniciar() {
+
+    await cargarHistoricasSiHaceFalta();
+
+    await cargarMediciones();
+
+  }
+
+
+  iniciar();
 
 </script>
 
