@@ -445,57 +445,128 @@ id="btnExcel">
 
 </div>
 
-<!-- CONFIGURACIÓN / CONTACTO DE EMERGENCIA -->
+<!-- CONFIGURACIÓN -->
 
-<div class="tarjeta" id="panelConfiguracion">
-
-  <h2>⚙️ Configuración</h2>
-
-  <h3>📞 Contacto de emergencia</h3>
-
-  <p style="font-size:14px; color:#6b7280;">
-    Guardá un contacto para poder llamarlo rápidamente
-    cuando la app muestre una alerta de presión muy alta.
-  </p>
-
-  <label for="contactoNombre">
-    Nombre del contacto
-  </label>
-
-  <input
-    type="text"
-    id="contactoNombre"
-    placeholder="Ej: Cyn"
-  >
-
-  <label for="contactoTelefono">
-    Teléfono
-  </label>
-
-  <input
-    type="tel"
-    id="contactoTelefono"
-    placeholder="Ej: 11 1234 5678"
-  >
+<div class="tarjeta">
 
   <button
     type="button"
-    id="btnGuardarContacto"
+    id="btnAbrirConfiguracion"
     class="secundario"
-    style="margin-top:15px;">
-    💾 Guardar contacto
+    style="width:100%;">
+    ⚙️ Configuración
   </button>
 
+</div>
+
+
+<!-- MODAL CONFIGURACIÓN -->
+
+<div
+  id="modalConfiguracion"
+  style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:9999;
+    padding:20px;
+    align-items:center;
+    justify-content:center;
+  "
+>
+
   <div
-    id="estadoContacto"
     style="
-      margin-top:12px;
-      font-size:14px;
-      font-weight:bold;
+      background:white;
+      width:100%;
+      max-width:420px;
+      border-radius:16px;
+      padding:22px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    "
+  >
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:18px;
     ">
+
+      <h2 style="margin:0;">
+        ⚙️ Configuración
+      </h2>
+
+      <button
+        type="button"
+        id="btnCerrarConfiguracion"
+        style="
+          border:none;
+          background:none;
+          font-size:25px;
+          cursor:pointer;
+        ">
+        ✕
+      </button>
+
+    </div>
+
+
+    <h3>📞 Contacto de emergencia</h3>
+
+    <p style="font-size:14px;color:#6b7280;">
+      Este contacto aparecerá como acceso rápido
+      ante una alerta de presión muy alta.
+    </p>
+
+
+    <label for="contactoNombre">
+      Nombre
+    </label>
+
+    <input
+      type="text"
+      id="contactoNombre"
+      placeholder="Ej: Cyn"
+    >
+
+
+    <label for="contactoTelefono">
+      Teléfono
+    </label>
+
+    <input
+      type="tel"
+      id="contactoTelefono"
+      placeholder="Ej: 11 1234 5678"
+    >
+
+
+    <button
+      type="button"
+      id="btnGuardarContacto"
+      class="secundario"
+      style="
+        width:100%;
+        margin-top:15px;
+      ">
+      💾 Guardar contacto
+    </button>
+
+
+    <div
+      id="estadoContacto"
+      style="
+        margin-top:12px;
+        font-size:14px;
+        font-weight:bold;
+      ">
+    </div>
+
   </div>
 
-</div>  
+</div>
 
 <!-- =====================================================
      HISTORIAL
@@ -586,6 +657,51 @@ collection(db,"mediciones");
    CONTACTO DE EMERGENCIA
 ===================================================== */
 
+const modalConfiguracion =
+document.getElementById("modalConfiguracion");
+
+const btnAbrirConfiguracion =
+document.getElementById("btnAbrirConfiguracion");
+
+const btnCerrarConfiguracion =
+document.getElementById("btnCerrarConfiguracion");
+
+
+btnAbrirConfiguracion.addEventListener(
+  "click",
+  function(){
+
+    modalConfiguracion.style.display = "flex";
+
+  }
+);
+
+
+btnCerrarConfiguracion.addEventListener(
+  "click",
+  function(){
+
+    modalConfiguracion.style.display = "none";
+
+  }
+);
+
+
+/* CERRAR TOCANDO FUERA DE LA VENTANA */
+
+modalConfiguracion.addEventListener(
+  "click",
+  function(e){
+
+    if(e.target === modalConfiguracion){
+
+      modalConfiguracion.style.display = "none";
+
+    }
+
+  }
+);
+  
 const contactoNombre =
 document.getElementById("contactoNombre");
 
