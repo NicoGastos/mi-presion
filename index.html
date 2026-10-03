@@ -292,8 +292,6 @@ button:disabled {
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
- <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script> 
-
 </head>
 
 <body>
@@ -860,184 +858,25 @@ function(){
 
 fotoInput.addEventListener(
 "change",
-async function(){
+function(){
 
-  const archivo = fotoInput.files[0];
+  const archivo =
+  fotoInput.files[0];
 
   if(!archivo)
-    return;
+  return;
 
-  const url = URL.createObjectURL(archivo);
+  const url =
+  URL.createObjectURL(archivo);
 
-  preview.src = url;
-  preview.style.display = "block";
+  preview.src =
+  url;
 
-  avisoFoto.style.display = "block";
-  avisoFoto.innerHTML =
-    "🤖 Leyendo la foto... esperá unos segundos.";
+  preview.style.display =
+  "block";
 
-  try {
-
-    const resultado = await Tesseract.recognize(
-      archivo,
-      "eng",
-      {
-        logger: function(m){
-
-          if(m.status === "recognizing text"){
-
-            const porcentaje =
-              Math.round(m.progress * 100);
-
-            avisoFoto.innerHTML =
-              "🤖 Leyendo la pantalla... " +
-              porcentaje + "%";
-          }
-        }
-      }
-    );
-
-    let texto =
-      resultado.data.text || "";
-
-    console.log("OCR ORIGINAL:", texto);
-
-    texto = texto
-      .toUpperCase()
-      .replace(/[OQ]/g,"0")
-      .replace(/[IL|]/g,"1");
-
-    const numeros =
-      (texto.match(/\d{2,3}/g) || [])
-      .map(Number)
-      .filter(n => n >= 30 && n <= 300);
-
-    console.log("NÚMEROS OCR:", numeros);
-
-    let sys = null;
-    let dia = null;
-    let pul = null;
-
-    let mejorPuntaje = -1;
-
-    for(let i = 0; i < numeros.length; i++){
-
-      const posibleSys = numeros[i];
-
-      if(
-        posibleSys < 70 ||
-        posibleSys > 260
-      ){
-        continue;
-      }
-
-      for(let j = i + 1; j < numeros.length; j++){
-
-        const posibleDia = numeros[j];
-
-        if(
-          posibleDia < 40 ||
-          posibleDia > 160 ||
-          posibleDia >= posibleSys
-        ){
-          continue;
-        }
-
-        for(let k = j + 1; k < numeros.length; k++){
-
-          const posiblePul = numeros[k];
-
-          if(
-            posiblePul < 35 ||
-            posiblePul > 220
-          ){
-            continue;
-          }
-
-          let puntaje = 0;
-
-          if(
-            posibleSys >= 90 &&
-            posibleSys <= 220
-          ){
-            puntaje += 3;
-          }
-
-          if(
-            posibleDia >= 50 &&
-            posibleDia <= 130
-          ){
-            puntaje += 3;
-          }
-
-          if(
-            posiblePul >= 45 &&
-            posiblePul <= 160
-          ){
-            puntaje += 3;
-          }
-
-          if(
-            posibleSys - posibleDia >= 20
-          ){
-            puntaje += 2;
-          }
-
-          if(j === i + 1){
-            puntaje += 2;
-          }
-
-          if(k === j + 1){
-            puntaje += 2;
-          }
-
-          if(puntaje > mejorPuntaje){
-
-            mejorPuntaje = puntaje;
-
-            sys = posibleSys;
-            dia = posibleDia;
-            pul = posiblePul;
-          }
-        }
-      }
-    }
-
-    if(
-      sys !== null &&
-      dia !== null &&
-      pul !== null
-    ){
-
-      sistolica.value = sys;
-      diastolica.value = dia;
-      pulso.value = pul;
-
-      actualizarAlerta();
-
-      avisoFoto.innerHTML =
-        "✅ Lectura encontrada: <b>" +
-        sys + "/" + dia +
-        " mmHg</b> — Pulso: <b>" +
-        pul +
-        " lpm</b><br>" +
-        "⚠️ Verificá siempre los tres valores en la foto antes de guardar.";
-
-    }else{
-
-      avisoFoto.innerHTML =
-        "⚠️ No pude reconocer con seguridad los tres valores.<br>" +
-        "Completá manualmente cualquier campo vacío y verificá los números antes de guardar.";
-    }
-
-  }catch(error){
-
-    console.error("Error OCR:", error);
-
-    avisoFoto.innerHTML =
-      "⚠️ No pude leer automáticamente esta foto.<br>" +
-      "Podés completar los valores manualmente.";
-  }
+  avisoFoto.style.display =
+  "block";
 
 });
 
