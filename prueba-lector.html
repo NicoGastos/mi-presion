@@ -296,31 +296,15 @@ btnLeer.addEventListener(
 
     try {
 
-      const respuesta =
-        await fetch(
-          WORKER_URL,
-          {
-
-            method: "POST",
-
-            cache: "no-store",
-
-           headers: {
-  "Content-Type": "application/json"
-},
-
-            body: JSON.stringify({
-
-              imagen:
-                imagenAEnviar,
-
-              prueba:
-                Date.now()
-
-            })
-
-          }
-        );
+     const respuesta = await fetch(WORKER_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    imagen: imagenAEnviar
+  })
+});
 
 
       const datos =
