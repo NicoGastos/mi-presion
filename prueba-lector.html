@@ -29,7 +29,7 @@
 
     input {
       width: 100%;
-      margin: 20px 0;
+      margin: 20px 0 8px 0;
     }
 
     button {
@@ -42,10 +42,12 @@
       font-size: 17px;
       font-weight: bold;
       cursor: pointer;
+      margin-top: 15px;
     }
 
     button:disabled {
       opacity: .5;
+      cursor: not-allowed;
     }
 
     #preview {
@@ -55,6 +57,13 @@
       object-fit: contain;
       margin: 15px 0;
       border-radius: 10px;
+    }
+
+    #infoArchivo {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 8px 0 15px 0;
+      word-break: break-word;
     }
 
     #estado {
@@ -91,9 +100,14 @@
     accept="image/*"
   >
 
+  <div id="infoArchivo"></div>
+
   <img id="preview">
 
-  <button id="btnLeer">
+  <button
+    id="btnLeer"
+    type="button"
+    disabled>
     🤖 Leer presión
   </button>
 
@@ -115,6 +129,9 @@ document.getElementById("foto");
 const preview =
 document.getElementById("preview");
 
+const infoArchivo =
+document.getElementById("infoArchivo");
+
 const btnLeer =
 document.getElementById("btnLeer");
 
@@ -125,123 +142,260 @@ const resultado =
 document.getElementById("resultado");
 
 
-foto.addEventListener("change", function(){
-
-  const archivo = foto.files[0];
-
-  if(!archivo){
-    preview.style.display = "none";
-    return;
-  }
-
-  preview.src =
-  URL.createObjectURL(archivo);
-
-  preview.style.display = "block";
-
-  resultado.style.display = "none";
-
-  estado.innerHTML = "";
-
-});
+let archivoActual = null;
+let base64Actual = null;
+let previewURL = null;
 
 
-btnLeer.addEventListener("click", async function(){
+// ==========================================
+// SELECCIONAR FOTO
+// ==========================================
 
-  const archivo = foto.files[0];
+foto.addEventListener(
+  "change",
+  async function(){
 
-  if(!archivo){
+    archivoActual = null;
+    base64Actual = null;
 
-    alert("Seleccioná una foto primero.");
+    resultado.style.display = "none";
+    resultado.textContent = "";
 
-    return;
+    estado.innerHTML = "";
 
-  }
+    btnLeer.disabled = true;
 
-
-  btnLeer.disabled = true;
-
-  estado.innerHTML =
-  "🤖 Analizando imagen...";
-
-  resultado.style.display = "none";
-
-
-  try {
-
-    const base64 =
-    await convertirBase64(archivo);
+    infoArchivo.innerHTML = "";
 
 
-    const respuesta =
-    await fetch(
-      WORKER_URL,
-      {
-        method: "POST",
+    if(previewURL){
 
-        headers: {
-          "Content-Type":
-          "application/json"
-        },
+      URL.revokeObjectURL(previewURL);
 
-        body: JSON.stringify({
-          imagen: base64
-        })
-      }
-    );
-
-
-    const datos =
-    await respuesta.json();
-
-
-    if(!respuesta.ok){
-
-      throw new Error(
-        datos.error ||
-        "Error del servicio"
-      );
+      previewURL = null;
 
     }
 
 
+    preview.removeAttribute("src");
+    preview.style.display = "none";
+
+
+    const archivo = foto.files[0];
+
+
+    if(!archivo){
+
+      return;
+
+    }
+
+
+    archivoActual = archivo;
+
+
+    infoArchivo.innerHTML =
+      "<strong>Archivo seleccionado:</strong><br>" +
+      escaparHTML(archivo.name) +
+      "<br>" +
+      Math.round(archivo.size / 1024) +
+      " KB" +
+      "<br>" +
+      escaparHTML(archivo.type || "tipo desconocido");
+
+
+    previewURL =
+      URL.createObjectURL(archivo);
+
+
+    preview.src =
+      previewURL;
+
+
+    preview.style.display =
+      "block";
+
+
     estado.innerHTML =
-    "✅ Imagen analizada";
+      "⏳ Preparando imagen...";
+
+
+    try {
+
+      base64Actual =
+        await convertirBase64(archivoActual);
+
+
+      estado.innerHTML =
+        "✅ Foto lista para analizar";
+
+
+      btnLeer.disabled =
+        false;
+
+    }
+
+    catch(error){
+
+      estado.innerHTML =
+        "❌ No se pudo preparar la imagen";
+
+      base64Actual =
+        null;
+
+    }
+
+  }
+);
+
+
+// ==========================================
+// ENVIAR FOTO
+// ==========================================
+
+btnLeer.addEventListener(
+  "click",
+  async function(){
+
+    if(
+      !archivoActual ||
+      !base64Actual
+    ){
+
+      alert(
+        "Seleccioná una foto primero."
+      );
+
+      return;
+
+    }
+
+
+    // Guardamos una copia exacta de la imagen
+    // seleccionada para ESTA petición.
+
+    const imagenAEnviar =
+      base64Actual;
+
+
+    btnLeer.disabled =
+      true;
+
+
+    estado.innerHTML =
+      "🤖 Analizando imagen...";
 
 
     resultado.style.display =
-    "block";
+      "none";
 
 
     resultado.textContent =
-    JSON.stringify(
-      datos,
-      null,
-      2
-    );
+      "";
 
+
+    try {
+
+      const respuesta =
+        await fetch(
+          WORKER_URL,
+          {
+
+            method: "POST",
+
+            cache: "no-store",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Cache-Control":
+                "no-cache"
+
+            },
+
+            body: JSON.stringify({
+
+              imagen:
+                imagenAEnviar,
+
+              prueba:
+                Date.now()
+
+            })
+
+          }
+        );
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if(!respuesta.ok){
+
+        throw new Error(
+          datos.error ||
+          "Error del servicio"
+        );
+
+      }
+
+
+      if(datos.ok === false){
+
+        throw new Error(
+          datos.error ||
+          "No se pudo leer la medición"
+        );
+
+      }
+
+
+      estado.innerHTML =
+        "✅ Imagen analizada";
+
+
+      resultado.style.display =
+        "block";
+
+
+      resultado.textContent =
+        JSON.stringify(
+          datos,
+          null,
+          2
+        );
+
+    }
+
+    catch(error){
+
+      estado.innerHTML =
+        "❌ No se pudo analizar la imagen";
+
+
+      resultado.style.display =
+        "block";
+
+
+      resultado.textContent =
+        error.message;
+
+    }
+
+
+    btnLeer.disabled =
+      false;
 
   }
-  catch(error){
-
-    estado.innerHTML =
-    "❌ No se pudo analizar la imagen";
+);
 
 
-    resultado.style.display =
-    "block";
-
-
-    resultado.textContent =
-    error.message;
-
-  }
-
-
-  btnLeer.disabled = false;
-
-});
-
+// ==========================================
+// CONVERTIR FOTO A BASE64
+// ==========================================
 
 function convertirBase64(archivo){
 
@@ -249,21 +403,29 @@ function convertirBase64(archivo){
     function(resolve,reject){
 
       const lector =
-      new FileReader();
+        new FileReader();
 
 
       lector.onload =
-      function(){
+        function(){
 
-        resolve(
-          lector.result
-        );
+          resolve(
+            lector.result
+          );
 
-      };
+        };
 
 
       lector.onerror =
-      reject;
+        function(){
+
+          reject(
+            new Error(
+              "Error leyendo la imagen"
+            )
+          );
+
+        };
 
 
       lector.readAsDataURL(
@@ -272,6 +434,22 @@ function convertirBase64(archivo){
 
     }
   );
+
+}
+
+
+// ==========================================
+// SEGURIDAD PARA MOSTRAR NOMBRE DE ARCHIVO
+// ==========================================
+
+function escaparHTML(texto){
+
+  return String(texto)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
 }
 
