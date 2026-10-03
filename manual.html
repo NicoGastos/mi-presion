@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#b91c1c">
+
+<title>Manual - Mi Presión</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f7fb;
+  color:#1f2937;
+}
+
+.contenedor{
+  max-width:600px;
+  margin:auto;
+  padding:16px;
+}
+
+/* PORTADA */
+
+.portada{
+  background:linear-gradient(135deg,#b91c1c,#dc2626);
+  color:white;
+  padding:30px 20px;
+  border-radius:20px;
+  text-align:center;
+  margin-bottom:18px;
+  box-shadow:0 5px 18px rgba(0,0,0,.15);
+}
+
+.corazon{
+  font-size:55px;
+  margin-bottom:5px;
+}
+
+.portada h1{
+  margin:5px 0;
+  font-size:30px;
+}
+
+.portada p{
+  margin:8px 0 0;
+  opacity:.95;
+  font-size:16px;
+}
+
+/* TARJETAS */
+
+.tarjeta{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.iconoGrande{
+  font-size:45px;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+h2{
+  margin:5px 0 15px;
+  text-align:center;
+  color:#991b1b;
+}
+
+h3{
+  margin-top:18px;
+  margin-bottom:8px;
+}
+
+p{
+  line-height:1.6;
+}
+
+.paso{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  margin:15px 0;
+}
+
+.numero{
+  min-width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#b91c1c;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.pasoTexto{
+  flex:1;
+  line-height:1.5;
+}
+
+/* SIMULACIÓN TENSIÓMETRO */
+
+.tensiometro{
+  max-width:260px;
+  margin:15px auto;
+  background:#e5e7eb;
+  border-radius:24px;
+  padding:18px;
+  text-align:center;
+  box-shadow:
+    inset 0 0 0 2px #d1d5db,
+    0 5px 12px rgba(0,0,0,.12);
+}
+
+.pantalla{
+  background:#dbe4d2;
+  border:5px solid #374151;
+  border-radius:10px;
+  padding:12px;
+  color:#111827;
+  font-family:monospace;
+}
+
+.filaPantalla{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:5px 0;
+}
+
+.valor{
+  font-size:30px;
+  font-weight:bold;
+}
+
+.etiqueta{
+  font-size:12px;
+  font-weight:bold;
+}
+
+/* ESTADOS */
+
+.estado{
+  border-radius:14px;
+  padding:14px;
+  margin:12px 0;
+  border-left:6px solid;
+}
+
+.normal{
+  background:#ecfdf5;
+  border-color:#10b981;
+}
+
+.elevada{
+  background:#fefce8;
+  border-color:#eab308;
+}
+
+.etapa1{
+  background:#fff7ed;
+  border-color:#f97316;
+}
+
+.etapa2{
+  background:#fef2f2;
+  border-color:#dc2626;
+}
+
+.severa{
+  background:#7f1d1d;
+  border-color:#450a0a;
+  color:white;
+}
+
+.estadoTitulo{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+/* EJEMPLO HISTORIAL */
+
+.registro{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:15px;
+  margin-top:12px;
+}
+
+.presion{
+  font-size:25px;
+  font-weight:bold;
+  color:#b91c1c;
+}
+
+.detalle{
+  color:#6b7280;
+  margin-top:6px;
+}
+
+.botonEliminar{
+  display:inline-block;
+  margin-top:10px;
+  padding:8px 12px;
+  background:#6b7280;
+  color:white;
+  border-radius:8px;
+  font-size:14px;
+}
+
+/* INFORME */
+
+.miniInforme{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:15px;
+}
+
+.dato{
+  background:#f9fafb;
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+}
+
+.dato strong{
+  display:block;
+  color:#b91c1c;
+  font-size:21px;
+}
+
+/* ALERTA */
+
+.alerta{
+  background:#7f1d1d;
+  color:white;
+  padding:18px;
+  border-radius:14px;
+  line-height:1.6;
+}
+
+/* BOTÓN VOLVER */
+
+.volver{
+  display:block;
+  width:100%;
+  padding:15px;
+  background:#b91c1c;
+  color:white;
+  text-decoration:none;
+  text-align:center;
+  border-radius:12px;
+  font-size:17px;
+  font-weight:bold;
+  margin:22px 0;
+}
+
+/* PIE */
+
+.pie{
+  text-align:center;
+  color:#6b7280;
+  font-size:13px;
+  line-height:1.5;
+  padding:10px 5px 25px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<!-- PORTADA -->
+
+<div class="portada">
+
+  <div class="corazon">❤️</div>
+
+  <h1>Mi Presión</h1>
+
+  <p>
+    Manual de usuario
+  </p>
+
+</div>
+
+
+<!-- NUEVA MEDICIÓN -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">🩺</div>
+
+  <h2>Registrar una medición</h2>
+
+  <p>
+    Mi Presión permite guardar tus controles de presión arterial
+    para mantener un registro ordenado de tus mediciones.
+  </p>
+
+  <div class="tensiometro">
+
+    <div class="pantalla">
+
+      <div class="filaPantalla">
+        <span class="etiqueta">SYS</span>
+        <span class="valor">120</span>
+      </div>
+
+      <div class="filaPantalla">
+        <span class="etiqueta">DIA</span>
+        <span class="valor">70</span>
+      </div>
+
+      <div class="filaPantalla">
+        <span class="etiqueta">PULSE</span>
+        <span class="valor">70</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="paso">
+    <div class="numero">1</div>
+    <div class="pasoTexto">
+      Realizá la medición con tu tensiómetro.
+    </div>
+  </div>
+
+  <div class="paso">
+    <div class="numero">2</div>
+    <div class="pasoTexto">
+      Ingresá la presión <strong>sistólica</strong>,
+      <strong>diastólica</strong> y el <strong>pulso</strong>.
+    </div>
+  </div>
+
+  <div class="paso">
+    <div class="numero">3</div>
+    <div class="pasoTexto">
+      Revisá la fecha y la hora. Podés agregar una observación,
+      por ejemplo: “5 minutos de reposo”.
+    </div>
+  </div>
+
+  <div class="paso">
+    <div class="numero">4</div>
+    <div class="pasoTexto">
+      Tocá <strong>💾 Guardar medición</strong> y confirmá los datos.
+    </div>
+  </div>
+
+</div>
+
+
+<!-- FOTO -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">📷</div>
+
+  <h2>Usar una foto</h2>
+
+  <p>
+    Tocá <strong>📷 Sacar / elegir foto</strong> para fotografiar
+    la pantalla del tensiómetro o seleccionar una imagen del celular.
+  </p>
+
+  <p>
+    La fotografía se muestra en pantalla para que puedas consultar
+    los números mientras completás manualmente los valores.
+  </p>
+
+</div>
+
+
+<!-- ESTADOS -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">🚦</div>
+
+  <h2>Estados de presión</h2>
+
+  <p>
+    La app clasifica automáticamente cada medición utilizando
+    los siguientes estados:
+  </p>
+
+
+  <div class="estado normal">
+
+    <div class="estadoTitulo">
+      🟢 Presión normal
+    </div>
+
+    Sistólica menor de 120
+    <br>
+    y diastólica menor de 80.
+
+  </div>
+
+
+  <div class="estado elevada">
+
+    <div class="estadoTitulo">
+      🟡 Presión elevada
+    </div>
+
+    Sistólica entre 120 y 129
+    <br>
+    y diastólica menor de 80.
+
+  </div>
+
+
+  <div class="estado etapa1">
+
+    <div class="estadoTitulo">
+      🟠 Presión alta - Etapa 1
+    </div>
+
+    Sistólica entre 130 y 139
+    <br>
+    o diastólica entre 80 y 89.
+
+  </div>
+
+
+  <div class="estado etapa2">
+
+    <div class="estadoTitulo">
+      🔴 Hipertensión - Etapa 2
+    </div>
+
+    Sistólica de 140 o más
+    <br>
+    o diastólica de 90 o más.
+
+  </div>
+
+
+  <div class="estado severa">
+
+    <div class="estadoTitulo">
+      🚨 Presión muy alta
+    </div>
+
+    Sistólica mayor de 180
+    <br>
+    o diastólica mayor de 120.
+
+  </div>
+
+</div>
+
+
+<!-- HISTORIAL -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">📋</div>
+
+  <h2>Historial</h2>
+
+  <p>
+    Tocá <strong>📋 Historial</strong> para consultar todas
+    las mediciones guardadas.
+  </p>
+
+  <div class="registro">
+
+    <div class="presion">
+      120/70 mmHg
+    </div>
+
+    <div>
+      ❤️ Pulso: 70 lpm
+    </div>
+
+    <div class="detalle">
+      📅 02/10/2026 &nbsp; 🕐 20:30
+    </div>
+
+    <div class="botonEliminar">
+      🗑️ Eliminar
+    </div>
+
+  </div>
+
+  <p>
+    Cada registro dispone de un botón
+    <strong>🗑️ Eliminar</strong>.
+  </p>
+
+  <p>
+    Antes de borrar una medición, la app solicita confirmación.
+    Al eliminarla también desaparece del historial y deja de
+    utilizarse en los cálculos del informe.
+  </p>
+
+</div>
+
+
+<!-- INFORME -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">📊</div>
+
+  <h2>Informe</h2>
+
+  <p>
+    Tocá <strong>📊 Informe</strong> para consultar un resumen
+    de tus registros.
+  </p>
+
+  <div class="miniInforme">
+
+    <div class="dato">
+      <strong>124/78</strong>
+      Promedio
+    </div>
+
+    <div class="dato">
+      <strong>67</strong>
+      Pulso promedio
+    </div>
+
+    <div class="dato">
+      <strong>140/90</strong>
+      Máximos
+    </div>
+
+    <div class="dato">
+      <strong>112/62</strong>
+      Mínimos
+    </div>
+
+  </div>
+
+  <p>
+    El informe también permite comparar las mediciones registradas
+    antes y después del inicio del tratamiento configurado en la app.
+  </p>
+
+</div>
+
+
+<!-- EXCEL -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">📥</div>
+
+  <h2>Descargar Excel</h2>
+
+  <p>
+    Tocá <strong>📥 Descargar Excel</strong> para generar un archivo
+    con tus mediciones.
+  </p>
+
+  <p>
+    El archivo contiene el detalle de los registros y una hoja
+    adicional con el resumen del informe.
+  </p>
+
+</div>
+
+
+<!-- ALERTA -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">🚨</div>
+
+  <h2>Presión muy alta</h2>
+
+  <div class="alerta">
+
+    Si la lectura supera <strong>180 de sistólica</strong>
+    o <strong>120 de diastólica</strong>, la app muestra una
+    advertencia especial.
+
+    <br><br>
+
+    Esperá al menos 1 minuto y repetí la medición.
+
+    <br><br>
+
+    Si continúa por encima de esos valores, contactá a un
+    profesional de salud.
+
+    <br><br>
+
+    Si además presentás dolor de pecho, falta de aire,
+    debilidad o adormecimiento, cambios en la visión o
+    dificultad para hablar, buscá atención de emergencia.
+
+  </div>
+
+</div>
+
+
+<!-- IMPORTANTE -->
+
+<div class="tarjeta">
+
+  <div class="iconoGrande">ℹ️</div>
+
+  <h2>Importante</h2>
+
+  <p>
+    <strong>Mi Presión</strong> es una herramienta de registro
+    personal.
+  </p>
+
+  <p>
+    Una medición aislada no constituye por sí sola un diagnóstico
+    médico y la aplicación no reemplaza la evaluación de un
+    profesional de salud.
+  </p>
+
+</div>
+
+
+<!-- VOLVER -->
+
+<a
+  class="volver"
+  href="index.html">
+  ← Volver a Mi Presión
+</a>
+
+
+<div class="pie">
+
+  ❤️ Mi Presión
+  <br>
+  Manual de usuario
+
+</div>
+
+</div>
+
+</body>
+</html>
