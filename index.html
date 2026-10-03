@@ -484,11 +484,13 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  serverTimestamp
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    serverTimestamp
 }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
@@ -1077,7 +1079,51 @@ function mostrarUltima(){
     }
 
   `;
+  const btnEliminar = document.createElement("button");
 
+  btnEliminar.type = "button";
+  btnEliminar.textContent = "🗑️ Eliminar última medición";
+  btnEliminar.style.marginTop = "15px";
+  btnEliminar.style.background = "#6b7280";
+
+  btnEliminar.addEventListener("click", async function(){
+
+    const confirmar = confirm(
+      "¿Seguro que querés eliminar esta medición?\n\n" +
+      m.sistolica + "/" + m.diastolica + " mmHg\n" +
+      "Pulso: " + (m.pulso ?? "-") + " lpm"
+    );
+
+    if(!confirmar) return;
+
+    try{
+
+      btnEliminar.disabled = true;
+      btnEliminar.textContent = "Eliminando...";
+
+      await deleteDoc(
+        doc(db, "mediciones", m.id)
+      );
+
+      await cargarMediciones();
+
+      alert("Medición eliminada correctamente.");
+
+    }catch(error){
+
+      console.error(error);
+
+      alert("No se pudo eliminar la medición.");
+
+      btnEliminar.disabled = false;
+      btnEliminar.textContent = "🗑️ Eliminar última medición";
+    }
+
+  });
+
+  if(!m.historica){
+    cont.appendChild(btnEliminar);
+  }
 }
 
 
