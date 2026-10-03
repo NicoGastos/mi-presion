@@ -1414,14 +1414,66 @@ function mostrarHistorial(){
           :
           ""
         }
-
+<button
+  type="button"
+  class="btnEliminarHistorial"
+  data-id="${m.id}"
+  style="
+    margin-top:10px;
+    padding:7px 12px;
+    background:#6b7280;
+    color:white;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    width:auto;
+  ">
+  🗑️ Eliminar
+</button>
       </div>
 
     `;
 
   }
   ).join("");
+document.querySelectorAll(".btnEliminarHistorial").forEach(btn => {
 
+  btn.addEventListener("click", async function(){
+
+    const id = this.dataset.id;
+
+    const confirmar = confirm(
+      "¿Seguro que querés eliminar esta medición del historial?"
+    );
+
+    if(!confirmar) return;
+
+    try {
+
+      this.disabled = true;
+      this.textContent = "Eliminando...";
+
+      await deleteDoc(
+        doc(db, "mediciones", id)
+      );
+
+      await cargarMediciones();
+
+      alert("Medición eliminada correctamente.");
+
+    } catch(error) {
+
+      console.error(error);
+
+      alert("No se pudo eliminar la medición.");
+
+      this.disabled = false;
+      this.textContent = "🗑️ Eliminar";
+    }
+
+  });
+
+});
 }
 
 
