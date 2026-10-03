@@ -445,6 +445,57 @@ id="btnExcel">
 
 </div>
 
+<!-- CONFIGURACIÓN / CONTACTO DE EMERGENCIA -->
+
+<div class="tarjeta" id="panelConfiguracion">
+
+  <h2>⚙️ Configuración</h2>
+
+  <h3>📞 Contacto de emergencia</h3>
+
+  <p style="font-size:14px; color:#6b7280;">
+    Guardá un contacto para poder llamarlo rápidamente
+    cuando la app muestre una alerta de presión muy alta.
+  </p>
+
+  <label for="contactoNombre">
+    Nombre del contacto
+  </label>
+
+  <input
+    type="text"
+    id="contactoNombre"
+    placeholder="Ej: Cyn"
+  >
+
+  <label for="contactoTelefono">
+    Teléfono
+  </label>
+
+  <input
+    type="tel"
+    id="contactoTelefono"
+    placeholder="Ej: 11 1234 5678"
+  >
+
+  <button
+    type="button"
+    id="btnGuardarContacto"
+    class="secundario"
+    style="margin-top:15px;">
+    💾 Guardar contacto
+  </button>
+
+  <div
+    id="estadoContacto"
+    style="
+      margin-top:12px;
+      font-size:14px;
+      font-weight:bold;
+    ">
+  </div>
+
+</div>  
 
 <!-- =====================================================
      HISTORIAL
@@ -531,6 +582,88 @@ getFirestore(app);
 const medicionesRef =
 collection(db,"mediciones");
 
+  /* =====================================================
+   CONTACTO DE EMERGENCIA
+===================================================== */
+
+const contactoNombre =
+document.getElementById("contactoNombre");
+
+const contactoTelefono =
+document.getElementById("contactoTelefono");
+
+const btnGuardarContacto =
+document.getElementById("btnGuardarContacto");
+
+const estadoContacto =
+document.getElementById("estadoContacto");
+
+
+/* CARGAR CONTACTO GUARDADO */
+
+const nombreGuardado =
+localStorage.getItem("contactoEmergenciaNombre") || "";
+
+const telefonoGuardado =
+localStorage.getItem("contactoEmergenciaTelefono") || "";
+
+contactoNombre.value = nombreGuardado;
+contactoTelefono.value = telefonoGuardado;
+
+if(nombreGuardado && telefonoGuardado){
+
+  estadoContacto.innerHTML =
+    "✅ Contacto guardado: " +
+    nombreGuardado +
+    " — " +
+    telefonoGuardado;
+
+}
+
+
+/* GUARDAR / CAMBIAR CONTACTO */
+
+btnGuardarContacto.addEventListener(
+  "click",
+  function(){
+
+    const nombre =
+      contactoNombre.value.trim();
+
+    const telefono =
+      contactoTelefono.value.trim();
+
+    if(!nombre || !telefono){
+
+      alert(
+        "Completá el nombre y el teléfono del contacto."
+      );
+
+      return;
+    }
+
+    localStorage.setItem(
+      "contactoEmergenciaNombre",
+      nombre
+    );
+
+    localStorage.setItem(
+      "contactoEmergenciaTelefono",
+      telefono
+    );
+
+    estadoContacto.innerHTML =
+      "✅ Contacto guardado: " +
+      nombre +
+      " — " +
+      telefono;
+
+    alert(
+      "Contacto de emergencia guardado correctamente."
+    );
+
+  }
+);
 
 /* =====================================================
    ELEMENTOS
@@ -798,17 +931,65 @@ function actualizarAlerta(){
   `alertaPresion ${resultado.clase}`;
 
 
-  alertaPresion.innerHTML = `
+  const nombreEmergencia =
+  localStorage.getItem("contactoEmergenciaNombre") || "";
 
-    <div class="alertaTitulo">
-      ${resultado.titulo}
-    </div>
+const telefonoEmergencia =
+  localStorage.getItem("contactoEmergenciaTelefono") || "";
 
-    <div>
-      ${resultado.texto}
-    </div>
+let botonEmergencia = "";
 
-  `;
+if(resultado.nivel === "severa"){
+
+  if(nombreEmergencia && telefonoEmergencia){
+
+    const telefonoLimpio =
+      telefonoEmergencia.replace(/[^\d+]/g, "");
+
+    botonEmergencia = `
+      <a
+        href="tel:${telefonoLimpio}"
+        style="
+          display:block;
+          margin-top:15px;
+          padding:13px;
+          background:#b91c1c;
+          color:white;
+          text-align:center;
+          text-decoration:none;
+          font-weight:bold;
+          border-radius:8px;
+        "
+      >
+        📞 Llamar a ${escaparHTML(nombreEmergencia)}
+      </a>
+    `;
+
+  }else{
+
+    botonEmergencia = `
+      <div style="margin-top:12px;font-weight:bold;">
+        ⚙️ No hay un contacto de emergencia configurado.
+      </div>
+    `;
+
+  }
+
+}
+
+alertaPresion.innerHTML = `
+
+  <div class="alertaTitulo">
+    ${resultado.titulo}
+  </div>
+
+  <div>
+    ${resultado.texto}
+  </div>
+
+  ${botonEmergencia}
+
+`;
 
 
   alertaPresion.style.display =
