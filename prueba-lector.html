@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Prueba lector - Mi Presión</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .contenedor {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      margin: 20px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .5;
+    }
+
+    #preview {
+      display: none;
+      width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      margin: 15px 0;
+      border-radius: 10px;
+    }
+
+    #estado {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+  <h1>📷 Lector de presión</h1>
+
+  <p>
+    Seleccioná una foto donde se vea claramente
+    la pantalla del tensiómetro.
+  </p>
+
+  <input
+    type="file"
+    id="foto"
+    accept="image/*"
+  >
+
+  <img id="preview">
+
+  <button id="btnLeer">
+    🤖 Leer presión
+  </button>
+
+  <div id="estado"></div>
+
+  <div id="resultado"></div>
+
+</div>
+
+
+<script>
+
+const WORKER_URL =
+"https://mi-presion-lector.nbaraggiola.workers.dev/";
+
+const foto =
+document.getElementById("foto");
+
+const preview =
+document.getElementById("preview");
+
+const btnLeer =
+document.getElementById("btnLeer");
+
+const estado =
+document.getElementById("estado");
+
+const resultado =
+document.getElementById("resultado");
+
+
+foto.addEventListener("change", function(){
+
+  const archivo = foto.files[0];
+
+  if(!archivo){
+    preview.style.display = "none";
+    return;
+  }
+
+  preview.src =
+  URL.createObjectURL(archivo);
+
+  preview.style.display = "block";
+
+  resultado.style.display = "none";
+
+  estado.innerHTML = "";
+
+});
+
+
+btnLeer.addEventListener("click", async function(){
+
+  const archivo = foto.files[0];
+
+  if(!archivo){
+
+    alert("Seleccioná una foto primero.");
+
+    return;
+
+  }
+
+
+  btnLeer.disabled = true;
+
+  estado.innerHTML =
+  "🤖 Analizando imagen...";
+
+  resultado.style.display = "none";
+
+
+  try {
+
+    const base64 =
+    await convertirBase64(archivo);
+
+
+    const respuesta =
+    await fetch(
+      WORKER_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+          "application/json"
+        },
+
+        body: JSON.stringify({
+          imagen: base64
+        })
+      }
+    );
+
+
+    const datos =
+    await respuesta.json();
+
+
+    if(!respuesta.ok){
+
+      throw new Error(
+        datos.error ||
+        "Error del servicio"
+      );
+
+    }
+
+
+    estado.innerHTML =
+    "✅ Imagen analizada";
+
+
+    resultado.style.display =
+    "block";
+
+
+    resultado.textContent =
+    JSON.stringify(
+      datos,
+      null,
+      2
+    );
+
+
+  }
+  catch(error){
+
+    estado.innerHTML =
+    "❌ No se pudo analizar la imagen";
+
+
+    resultado.style.display =
+    "block";
+
+
+    resultado.textContent =
+    error.message;
+
+  }
+
+
+  btnLeer.disabled = false;
+
+});
+
+
+function convertirBase64(archivo){
+
+  return new Promise(
+    function(resolve,reject){
+
+      const lector =
+      new FileReader();
+
+
+      lector.onload =
+      function(){
+
+        resolve(
+          lector.result
+        );
+
+      };
+
+
+      lector.onerror =
+      reject;
+
+
+      lector.readAsDataURL(
+        archivo
+      );
+
+    }
+  );
+
+}
+
+</script>
+
+</body>
+</html>
