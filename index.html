@@ -1123,10 +1123,13 @@ diastolica.addEventListener(
 actualizarAlerta
 );
 
-
 /* =====================================================
-   FOTO
+   FOTO - LECTOR AUTOMÁTICO CON IA
 ===================================================== */
+
+const WORKER_LECTOR_URL =
+"https://mi-presion-lector.nbaraggiola.workers.dev/";
+
 
 document.getElementById(
 "btnFoto"
@@ -1156,27 +1159,184 @@ function(){
 
 fotoInput.addEventListener(
 "change",
-function(){
+async function(){
 
   const archivo =
   fotoInput.files[0];
 
-  if(!archivo)
-  return;
+  if(!archivo){
+    return;
+  }
 
+
+  // Mostrar la foto elegida
   const url =
   URL.createObjectURL(archivo);
 
-  preview.src =
-  url;
+  preview.src = url;
 
   preview.style.display =
   "block";
 
+
+  // Mostrar estado
   avisoFoto.style.display =
   "block";
 
+  avisoFoto.textContent =
+  "🤖 Analizando foto...";
+
+
+  // Vaciar valores anteriores
+  sistolica.value = "";
+  diastolica.value = "";
+  pulso.value = "";
+
+  alertaPresion.style.display =
+  "none";
+
+
+  try {
+
+    // Convertir foto a Base64
+    const imagen =
+    await convertirFotoBase64(
+      archivo
+    );
+
+
+    // Enviar al Worker 2.3
+    const respuesta =
+    await fetch(
+      WORKER_LECTOR_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+          "application/json"
+        },
+
+        body: JSON.stringify({
+          imagen: imagen
+        })
+      }
+    );
+
+
+    const datos =
+    await respuesta.json();
+
+
+    // Si hubo algún problema
+    if(
+      !respuesta.ok ||
+      !datos.ok ||
+      !datos.legible
+    ){
+
+      throw new Error(
+        datos.error ||
+        "No se pudo leer la medición."
+      );
+
+    }
+
+
+    // ==========================================
+    // COMPLETAR LOS CAMPOS AUTOMÁTICAMENTE
+    // ==========================================
+
+    sistolica.value =
+    datos.sistolica;
+
+    diastolica.value =
+    datos.diastolica;
+
+    pulso.value =
+    datos.pulso;
+
+
+    // Actualizar alerta de presión
+    actualizarAlerta();
+
+
+    // Mostrar resultado
+    avisoFoto.innerHTML =
+      "✅ Lectura detectada: <strong>" +
+      datos.sistolica +
+      "/" +
+      datos.diastolica +
+      "</strong> · Pulso <strong>" +
+      datos.pulso +
+      "</strong><br>" +
+      "Verificá los valores antes de guardar.";
+
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+
+    avisoFoto.textContent =
+      "❌ " +
+      (
+        error.message ||
+        "No se pudo analizar la foto. Probá con otra."
+      );
+
+  }
+
 });
+
+
+// ==========================================
+// CONVERTIR FOTO A BASE64
+// ==========================================
+
+function convertirFotoBase64(
+  archivo
+){
+
+  return new Promise(
+    function(resolve,reject){
+
+      const lector =
+      new FileReader();
+
+
+      lector.onload =
+      function(){
+
+        resolve(
+          lector.result
+        );
+
+      };
+
+
+      lector.onerror =
+      function(){
+
+        reject(
+          new Error(
+            "No se pudo leer la foto."
+          )
+        );
+
+      };
+
+
+      lector.readAsDataURL(
+        archivo
+      );
+
+    }
+  );
+
+}
 
 
 /* =====================================================
