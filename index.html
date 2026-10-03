@@ -512,7 +512,26 @@ id="btnExcel">
     </div>
 
 
-    <h3>📞 Contacto de emergencia</h3>
+   <h3 style="display:flex; justify-content:space-between; align-items:center;">
+  <span>📞 Contacto de emergencia</span>
+
+  <button
+    type="button"
+    id="cerrarContacto"
+    style="
+      width:auto;
+      border:none;
+      background:transparent;
+      font-size:24px;
+      cursor:pointer;
+      padding:0 4px;
+      color:#6b7280;
+    "
+    aria-label="Cerrar"
+  >
+    ✕
+  </button>
+</h3>
 
     <p style="font-size:14px;color:#6b7280;">
       Este contacto aparecerá como acceso rápido
@@ -2832,6 +2851,10 @@ async function iniciar(){
 
 iniciar();
 
+document.getElementById("cerrarContacto").addEventListener("click", function() {
+  document.getElementById("estadoContacto").parentElement.style.display = "none";
+});
+  
 </script>
 
 </body>
