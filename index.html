@@ -696,6 +696,9 @@ import {
     getDocs,
     deleteDoc,
     doc,
+    updateDoc,
+    query,
+    where,
     serverTimestamp
 }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
@@ -736,6 +739,9 @@ getFirestore(app);
 
 const medicionesRef =
 collection(db,"mediciones");
+
+const UID_NICO_MIGRACION =
+"TakObV1RQwOOwVGF8Ri2fXtwRor1";
 
   /* =====================================================
    CONTACTO DE EMERGENCIA
@@ -1468,6 +1474,9 @@ async function importarHistoricas(){
     medicionesRef,
     {
 
+      uid:
+      window.miPresionAuth.auth.currentUser.uid,
+      
       fecha:h[0],
 
       hora:h[1],
@@ -1505,11 +1514,67 @@ async function importarHistoricas(){
    CARGAR MEDICIONES
 ===================================================== */
 
+  async function migrarMedicionesAntiguas(uidActual){
+
+  // Seguridad: esta migración pertenece únicamente
+  // a la cuenta original de Nico.
+  if(uidActual !== UID_NICO_MIGRACION){
+    return;
+  }
+
+  const snapshot =
+  await getDocs(medicionesRef);
+
+  let migradas = 0;
+
+  for(const documento of snapshot.docs){
+
+    const datos =
+    documento.data();
+
+    // Solamente toca mediciones antiguas
+    // que todavía NO tienen usuario asignado.
+    if(!datos.uid){
+
+      await updateDoc(
+        doc(db, "mediciones", documento.id),
+        {
+          uid: UID_NICO_MIGRACION
+        }
+      );
+
+      migradas++;
+
+    }
+
+  }
+
+  console.log(
+    `Migración terminada: ${migradas} mediciones asignadas a Nico.`
+  );
+
+}
+window.migrarMedicionesAntiguas = migrarMedicionesAntiguas;
+  
 async function cargarMediciones(){
+
+   const usuario =
+  window.miPresionAuth?.auth?.currentUser;
+
+  if(!usuario){
+    mediciones = [];
+    return;
+  }
+
+  const consultaUsuario =
+  query(
+    medicionesRef,
+    where("uid", "==", usuario.uid)
+  );
 
   const snapshot =
   await getDocs(
-  medicionesRef
+    consultaUsuario
   );
 
   mediciones = [];
@@ -1794,7 +1859,10 @@ async function guardarMedicion(){
     await addDoc(
     medicionesRef,
     {
-
+      
+      uid:
+      window.miPresionAuth.auth.currentUser.uid,
+      
       fecha:
       fecha.value,
 
@@ -3078,10 +3146,18 @@ btnCerrarSesion.addEventListener("click", async () => {
 });
   
   // MOSTRAR LOGIN O APP
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
 
     if (user) {
 
+    if (window.migrarMedicionesAntiguas) {
+  try {
+    await window.migrarMedicionesAntiguas(user.uid);
+  } catch (error) {
+    console.error("Error en migración:", error);
+  }
+}
+      
       pantallaLogin.style.display = "none";
       contenedorApp.style.display = "block";
 
