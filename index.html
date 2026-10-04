@@ -814,12 +814,19 @@ document.getElementById("estadoContacto");
 
 
 /* CARGAR CONTACTO GUARDADO */
+function cargarContactoUsuario(){
+const uid =
+window.miPresionAuth?.auth?.currentUser?.uid;
 
 const nombreGuardado =
-localStorage.getItem("contactoEmergenciaNombre") || "";
+uid
+? localStorage.getItem(`contactoEmergenciaNombre_${uid}`) || ""
+: "";
 
 const telefonoGuardado =
-localStorage.getItem("contactoEmergenciaTelefono") || "";
+uid
+? localStorage.getItem(`contactoEmergenciaTelefono_${uid}`) || ""
+: "";
 
 contactoNombre.value = nombreGuardado;
 contactoTelefono.value = telefonoGuardado;
@@ -856,15 +863,23 @@ btnGuardarContacto.addEventListener(
       return;
     }
 
-    localStorage.setItem(
-      "contactoEmergenciaNombre",
-      nombre
-    );
+  const uid =
+window.miPresionAuth?.auth?.currentUser?.uid;
 
-    localStorage.setItem(
-      "contactoEmergenciaTelefono",
-      telefono
-    );
+if(!uid){
+  alert("No hay un usuario conectado.");
+  return;
+}
+
+localStorage.setItem(
+  `contactoEmergenciaNombre_${uid}`,
+  nombre
+);
+
+localStorage.setItem(
+  `contactoEmergenciaTelefono_${uid}`,
+  telefono
+);
 
     estadoContacto.innerHTML =
       "✅ Contacto guardado: " +
@@ -878,7 +893,10 @@ btnGuardarContacto.addEventListener(
       modalConfiguracion.style.display = "none";
   }
 );
+}
 
+  window.cargarContactoUsuario = cargarContactoUsuario;
+  
 /* =====================================================
    ELEMENTOS
 ===================================================== */
@@ -3207,6 +3225,10 @@ btnCerrarSesion.addEventListener("click", async () => {
 
 if (window.cargarMediciones) {
   await window.cargarMediciones();
+}
+
+      if (window.cargarContactoUsuario) {
+  window.cargarContactoUsuario();
 }
       
       pantallaLogin.style.display = "none";
