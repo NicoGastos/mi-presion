@@ -2952,6 +2952,127 @@ iniciar();
 
   console.log("Mi Presión 3.0 - Firebase Authentication conectado");
 </script>
+
+<script type="module">
+  const {
+    auth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+  } = window.miPresionAuth;
+
+  const pantallaLogin = document.getElementById("pantallaLogin");
+  const contenedorApp = document.querySelector(".contenedor");
+  const btnGoogle = document.getElementById("btnGoogle");
+  const btnLogin = document.getElementById("btnLogin");
+  const btnCrearCuenta = document.getElementById("btnCrearCuenta");
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
+  const mensajeLogin = document.getElementById("mensajeLogin");
+
+  function mostrarMensaje(texto, esError = false) {
+    mensajeLogin.textContent = texto;
+    mensajeLogin.style.color = esError ? "#b91c1c" : "#047857";
+  }
+
+  // GOOGLE
+  btnGoogle.addEventListener("click", async () => {
+    try {
+      mostrarMensaje("Ingresando con Google...");
+
+      const provider = new GoogleAuthProvider();
+
+      await signInWithPopup(auth, provider);
+
+    } catch (error) {
+      console.error(error);
+      mostrarMensaje("No se pudo ingresar con Google.", true);
+    }
+  });
+
+  // EMAIL + CONTRASEÑA
+  btnLogin.addEventListener("click", async () => {
+
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value;
+
+    if (!email || !password) {
+      mostrarMensaje("Completá correo y contraseña.", true);
+      return;
+    }
+
+    try {
+      mostrarMensaje("Ingresando...");
+
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+    } catch (error) {
+      console.error(error);
+      mostrarMensaje("Correo o contraseña incorrectos.", true);
+    }
+  });
+
+  // CREAR CUENTA
+  btnCrearCuenta.addEventListener("click", async () => {
+
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value;
+
+    if (!email || !password) {
+      mostrarMensaje("Completá correo y contraseña.", true);
+      return;
+    }
+
+    if (password.length < 6) {
+      mostrarMensaje(
+        "La contraseña debe tener al menos 6 caracteres.",
+        true
+      );
+      return;
+    }
+
+    try {
+      mostrarMensaje("Creando cuenta...");
+
+      await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+    } catch (error) {
+      console.error(error);
+      mostrarMensaje("No se pudo crear la cuenta.", true);
+    }
+  });
+
+  // MOSTRAR LOGIN O APP
+  onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+
+      pantallaLogin.style.display = "none";
+      contenedorApp.style.display = "block";
+
+      console.log(
+        "Usuario conectado:",
+        user.email
+      );
+
+    } else {
+
+      pantallaLogin.style.display = "block";
+      contenedorApp.style.display = "none";
+
+    }
+  });
+</script>
   
 </body>
 </html>
