@@ -2844,6 +2844,44 @@ iniciar();
     });
   }
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwES-u2Jm3zyhW_LqXCbLW-aoII38wjPU",
+    authDomain: "mi-presion-4286e.firebaseapp.com",
+    projectId: "mi-presion-4286e",
+    storageBucket: "mi-presion-4286e.firebasestorage.app",
+    messagingSenderId: "869630737307",
+    appId: "1:869630737307:web:2aa3818c3475809450ff3e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.miPresionAuth = {
+    auth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  };
+
+  console.log("Mi Presión 3.0 - Firebase Authentication conectado");
+</script>
   
 </body>
 </html>
