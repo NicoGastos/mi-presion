@@ -1625,6 +1625,7 @@ async function cargarMediciones(){
 
 }
 
+  window.cargarMediciones = cargarMediciones;
 
 /* =====================================================
    ÚLTIMA MEDICIÓN
@@ -3202,6 +3203,10 @@ btnCerrarSesion.addEventListener("click", async () => {
   } catch (error) {
     console.error("Error en migración:", error);
   }
+}
+
+if (window.cargarMediciones) {
+  await window.cargarMediciones();
 }
       
       pantallaLogin.style.display = "none";
