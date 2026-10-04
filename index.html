@@ -853,6 +853,12 @@ btnGuardarContacto.addEventListener(
   "click",
   function(){
 
+    if(btnGuardarContacto.dataset.procesando === "1"){
+      return;
+    }
+
+    btnGuardarContacto.dataset.procesando = "1";
+    
     const nombre =
       contactoNombre.value.trim();
 
@@ -896,6 +902,11 @@ localStorage.setItem(
       "Contacto de emergencia guardado correctamente."
     );
       modalConfiguracion.style.display = "none";
+
+setTimeout(() => {
+  delete btnGuardarContacto.dataset.procesando;
+}, 0);
+    
   }
 );
 }
