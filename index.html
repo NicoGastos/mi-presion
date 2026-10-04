@@ -374,6 +374,20 @@ button:disabled {
 Registro personal de presión arterial
 </div>
 
+<button
+  id="btnCerrarSesion"
+  type="button"
+  style="
+    display:block;
+    margin:12px auto 20px;
+    padding:8px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+  "
+>
+  Cerrar sesión
+</button>
 
 <!-- =====================================================
      ÚLTIMA MEDICIÓN
@@ -2968,6 +2982,7 @@ iniciar();
   const btnGoogle = document.getElementById("btnGoogle");
   const btnLogin = document.getElementById("btnLogin");
   const btnCrearCuenta = document.getElementById("btnCrearCuenta");
+  const btnCerrarSesion = document.getElementById("btnCerrarSesion");
   const loginEmail = document.getElementById("loginEmail");
   const loginPassword = document.getElementById("loginPassword");
   const mensajeLogin = document.getElementById("mensajeLogin");
@@ -3052,6 +3067,15 @@ iniciar();
     }
   });
 
+// CERRAR SESIÓN
+btnCerrarSesion.addEventListener("click", async () => {
+  try {
+    await window.miPresionAuth.signOut(auth);
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+});
+  
   // MOSTRAR LOGIN O APP
   onAuthStateChanged(auth, (user) => {
 
