@@ -1,4 +1,4 @@
-const CACHE_NAME = "mi-presion-v2.7";
+const CACHE_NAME = "mi-presion-v3.0";
 
 const ARCHIVOS = [
   "./",
