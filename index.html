@@ -360,6 +360,14 @@ button:disabled {
     Crear cuenta
   </button>
 
+<button
+  id="btnRecuperarPassword"
+  type="button"
+  style="width:100%;padding:12px;margin-top:10px;"
+>
+  Olvidé mi contraseña
+</button>
+  
   <div
     id="mensajeLogin"
     style="margin-top:15px;text-align:center;"
@@ -3006,6 +3014,7 @@ iniciar();
     GoogleAuthProvider,
     signInWithPopup,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged
@@ -3028,6 +3037,7 @@ iniciar();
     GoogleAuthProvider,
     signInWithPopup,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged
@@ -3042,6 +3052,7 @@ iniciar();
     GoogleAuthProvider,
     signInWithPopup,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
     signInWithEmailAndPassword,
     onAuthStateChanged
   } = window.miPresionAuth;
@@ -3051,6 +3062,7 @@ iniciar();
   const btnGoogle = document.getElementById("btnGoogle");
   const btnLogin = document.getElementById("btnLogin");
   const btnCrearCuenta = document.getElementById("btnCrearCuenta");
+  const btnRecuperarPassword = document.getElementById("btnRecuperarPassword");
   const btnCerrarSesion = document.getElementById("btnCerrarSesion");
   const loginEmail = document.getElementById("loginEmail");
   const loginPassword = document.getElementById("loginPassword");
@@ -3136,6 +3148,40 @@ iniciar();
     }
   });
 
+// RECUPERAR CONTRASEÑA
+btnRecuperarPassword.addEventListener("click", async () => {
+
+  const email = loginEmail.value.trim();
+
+  if (!email) {
+    mostrarMensaje(
+      "Ingresá tu correo electrónico para recuperar la contraseña.",
+      true
+    );
+    return;
+  }
+
+  try {
+
+    await sendPasswordResetEmail(auth, email);
+
+    mostrarMensaje(
+      "Te enviamos un correo para cambiar tu contraseña."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    mostrarMensaje(
+      "No se pudo enviar el correo de recuperación.",
+      true
+    );
+
+  }
+
+});
+  
 // CERRAR SESIÓN
 btnCerrarSesion.addEventListener("click", async () => {
   try {
